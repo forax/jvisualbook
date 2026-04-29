@@ -1,2 +1,5 @@
 # jvisualbook
-A program to see Jshell files as an executable notebook
+A program to see JShell files as an executable Notebook, similar to python notebook.
+
+
+
