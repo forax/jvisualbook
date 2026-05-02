@@ -46,9 +46,9 @@ public final class Server {
             .build()
         )
         .routing(it -> it
-            .get("/api/chapter", (req, res) -> {
-              res.send(allChapters());
-            })
+            .get("/api/chapter", (_, res) ->
+              res.send(allChapters())
+            )
             .get("/api/chapter/{id}", (req, res) -> {
               var id = req.path().pathParameters().get("id");
               res.send(chapterDocument(id));
