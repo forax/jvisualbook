@@ -147,7 +147,7 @@ public final class DocumentParser {
 
     List<String> lines;
     try(var stream = Files.lines(path)) {
-      // collect the lines, removing the header (some texts followed by some bank lines)
+      // Remove the header (all texts before the blank lines)
       lines = stream.dropWhile(LineKind.is(LineKind.TEXT))
           .dropWhile(LineKind.is(LineKind.BLANK))
           .toList();
