@@ -1,10 +1,8 @@
 package com.github.forax.jvisualbook;
 
-import com.github.forax.jvisualbook.model.Code;
-import com.github.forax.jvisualbook.model.Content;
-import com.github.forax.jvisualbook.model.Document;
-import com.github.forax.jvisualbook.model.Section;
-import com.github.forax.jvisualbook.model.Text;
+import com.github.forax.jvisualbook.Model.Content;
+import com.github.forax.jvisualbook.Model.Document;
+import com.github.forax.jvisualbook.Model.Section;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -204,7 +202,7 @@ public final class DocumentParser {
       }
       @Override
       public void endText() {
-        contents.add(new Text(builder.toString()));
+        contents.add(new Content(Content.Kind.TEXT, builder.toString()));
         builder = null;
       }
 
@@ -215,7 +213,7 @@ public final class DocumentParser {
 
       @Override
       public void endCode() {
-        contents.add(new Code(builder.toString()));
+        contents.add(new Content(Content.Kind.CODE, builder.toString()));
         builder = null;
       }
 

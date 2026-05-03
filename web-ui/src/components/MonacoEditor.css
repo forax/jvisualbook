@@ -1,0 +1,22 @@
+.monaco-editor-wrapper {
+    margin: 1rem 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.monaco-editor-wrapper.highlighted-block {
+    border-left: 3px solid #3498db;
+}
+
+.editor-loading {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    text-align: center;
+    color: #666;
+}
+
+/* Custom decorations for active code block */
+.active-code-block {
+    background-color: rgba(52, 152, 219, 0.08) !important;
+}
