@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {fetchChapterDocument, postCode} from '../services/api';
+import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
 import './DocumentViewer.css';
 
@@ -49,16 +49,14 @@ function DocumentViewer({ chapterName }) {
         const newContents = [];
         section.contents.forEach(content => {
           if (content.kind === "OUTPUT") {
-            return;  // skip old output
+            return; // skip old output
           }
           newContents.push(content);
           if (content.kind === "CODE") {
             newContents.push({ kind: "OUTPUT", text: execution.evaluations[id++].text});
           }
         });
-        return {
-          contents: newContents
-        };
+        return { contents: newContents };
       })
     };
   };
@@ -66,35 +64,28 @@ function DocumentViewer({ chapterName }) {
   const runCode = async () => {
     const codeBlocks = getAllCodeBlocks();
     const code = {
-      snippets: codeBlocks.map((text, index) => {
-        return { id: index, code: text };
-      })
+      snippets: codeBlocks.map((text, index) => ({ id: index, code: text }))
     };
     const execution = await postCode(code);
-    setDocument(document => mergeDocument(document, execution));
+    setDocument(doc => mergeDocument(doc, execution));
   };
 
-  const getCodeStartLine = useCallback((document, contentIndex) => {
-    let lineCount = 1;
-    let currentCodeIndex = 0;
-
-    document.sections.forEach(section => {
-      if (section.contents) {
-        section.contents.forEach(content => {
-          if (content.kind === "CODE") {
-            if (currentCodeIndex < contentIndex) {
-              lineCount += content.text.split('\n').length;
-              currentCodeIndex++;
-            }
-          }
-        });
-      }
-    });
-
-    return lineCount;
+  const handleCodeChange = useCallback((sectionIndex, contentIndex, newValue) => {
+    setDocument(doc => ({
+      sections: doc.sections.map((section, si) => {
+        if (si !== sectionIndex) return section;
+        return {
+          ...section,
+          contents: section.contents.map((content, ci) => {
+            if (ci !== contentIndex) return content;
+            return { ...content, text: newValue };
+          })
+        };
+      })
+    }));
   }, []);
 
-  const renderContent = (content, contentIndex) => {
+  const renderContent = (content, sectionIndex, contentIndex) => {
     if (!content) return null;
 
     if (content.kind === "TEXT") {
@@ -104,11 +95,11 @@ function DocumentViewer({ chapterName }) {
       );
     }
     if (content.kind === "CODE") {
-      const startLine = getCodeStartLine(document, contentIndex);
       return (
         <MonacoEditorWrapper
           key={contentIndex}
           code={content.text}
+          onChange={val => handleCodeChange(sectionIndex, contentIndex, val)}
         />
       );
     }
@@ -157,10 +148,7 @@ function DocumentViewer({ chapterName }) {
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
-        <button
-          className="toggle-code-btn"
-          onClick={async () => runCode()}
-        >
+        <button className="toggle-code-btn" onClick={async () => runCode()}>
           Run
         </button>
       </div>
@@ -171,7 +159,7 @@ function DocumentViewer({ chapterName }) {
             <h3 className="section-title">{section.title}</h3>
             <div className="section-contents">
               {section.contents?.map((content, contentIndex) =>
-                renderContent(content, contentIndex)
+                renderContent(content, sectionIndex, contentIndex)
               )}
             </div>
           </div>

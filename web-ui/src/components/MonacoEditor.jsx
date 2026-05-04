@@ -1,12 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import './MonacoEditor.css';
 
-function MonacoEditorWrapper({ code }) {
+function MonacoEditorWrapper({ code, onChange }) {
   const [editorHeight, setEditorHeight] = useState('auto');
 
   const handleEditorDidMount = () => {
-    // Calculate height based on content
     const lineCount = code.split('\n').length;
     const lineHeight = 19;
     const maxHeight = 600;
@@ -37,6 +36,7 @@ function MonacoEditorWrapper({ code }) {
         value={code}
         options={options}
         onMount={handleEditorDidMount}
+        onChange={onChange}
         theme="vs-light"
         loading={<div className="editor-loading">Loading editor...</div>}
       />
