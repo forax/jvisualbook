@@ -6,4 +6,6 @@
 
 # production
 /build
+/public
+
 
