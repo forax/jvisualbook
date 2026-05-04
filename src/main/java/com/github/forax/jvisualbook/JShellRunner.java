@@ -35,6 +35,11 @@ public final class JShellRunner {
       // Split off the next complete snippet from the source
       var info = analysis.analyzeCompletion(source);
       var unit = info.source();
+      var remaining = info.remaining();
+      if (unit == null) {  // analyze fails consume the remaining of the source
+        unit = remaining;
+        remaining = "";
+      }
 
       var events = shell.eval(unit);
 
@@ -50,8 +55,7 @@ public final class JShellRunner {
         return new Model.Evaluation(Model.Evaluation.Status.ERROR, rejected);
       }
 
-      // Advance past the consumed snippet
-      source = info.remaining();
+      source = remaining;
     }
 
     var text = output.toString(StandardCharsets.UTF_8);
