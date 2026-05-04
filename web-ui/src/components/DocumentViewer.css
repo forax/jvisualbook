@@ -83,3 +83,7 @@
     line-height: 1.6;
     color: #27ae60;
 }
+
+.status-error {
+    color: #e74c3c;
+}

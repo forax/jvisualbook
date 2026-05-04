@@ -67,7 +67,8 @@ function DocumentViewer({ chapterName }) {
           }
           newContents.push(content);
           if (content.kind === "CODE") {
-            newContents.push({ kind: "OUTPUT", text: execution.evaluations[id++].text });
+            var evaluation = execution.evaluations[id++];
+            newContents.push({ kind: "OUTPUT", status: evaluation.status, text: evaluation.text });
           }
         });
         return { ...section, contents: newContents };
@@ -121,8 +122,9 @@ function DocumentViewer({ chapterName }) {
       );
     }
     if (content.kind === "OUTPUT") {
+      const status = content.status === "ERROR" ? "status-error" : "";
       return (
-        <pre key={contentIndex} className="text-output">{content.text}</pre>
+        <pre key={contentIndex} className={`text-output ${status}`}>{content.text}</pre>
       );
     }
   };
