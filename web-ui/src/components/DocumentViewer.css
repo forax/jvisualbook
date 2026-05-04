@@ -79,6 +79,7 @@
 
 .text-output {
     margin-bottom: 1rem;
+    padding-left: 0.5rem;
     line-height: 1.6;
-    color: #780cdb;
+    color: #27ae60;
 }
