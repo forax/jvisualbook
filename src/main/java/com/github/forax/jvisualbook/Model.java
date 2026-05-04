@@ -30,7 +30,7 @@ public interface Model {
       snippets = List.copyOf(snippets);
     }
   }
-  record Snippet(int id, String code) {
+  record Snippet(String code) {
     public Snippet {
       Objects.requireNonNull(code);
     }
@@ -41,7 +41,7 @@ public interface Model {
       evaluations = List.copyOf(evaluations);
     }
   }
-  record Evaluation(int id, String text) {
+  record Evaluation(String text) {
     public Evaluation {
       Objects.requireNonNull(text);
     }

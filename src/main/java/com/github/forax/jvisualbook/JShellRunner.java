@@ -34,6 +34,6 @@ public final class JShellRunner {
         })
         .collect(Collectors.joining("\n"));
 
-    return new Model.Evaluation(snippet.id(), text);
+    return new Model.Evaluation(text);
   }
 }

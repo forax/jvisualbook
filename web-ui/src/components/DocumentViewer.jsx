@@ -64,7 +64,7 @@ function DocumentViewer({ chapterName }) {
   const runCode = async () => {
     const codeBlocks = getAllCodeBlocks();
     const code = {
-      snippets: codeBlocks.map((text, index) => ({ id: index, code: text }))
+      snippets: codeBlocks.map(text => ({ code: text }))
     };
     const execution = await postCode(code);
     setDocument(doc => mergeDocument(doc, execution));
