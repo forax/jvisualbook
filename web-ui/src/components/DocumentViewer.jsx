@@ -70,7 +70,7 @@ function DocumentViewer({ chapterName }) {
             newContents.push({ kind: "OUTPUT", text: execution.evaluations[id++].text });
           }
         });
-        return { contents: newContents };
+        return { ...section, contents: newContents };
       })
     };
   };
@@ -161,7 +161,10 @@ function DocumentViewer({ chapterName }) {
       <div className="document-content">
         {document.sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="section">
-            <h3 className="section-title">{section.title}</h3>
+            <ReactMarkdown className="section-title">
+              {section.title}
+            </ReactMarkdown>
+           <br/>
             <div className="section-contents">
               {section.contents?.map((content, contentIndex) =>
                 renderContent(content, sectionIndex, contentIndex)
