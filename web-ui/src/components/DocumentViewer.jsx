@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchChapterDocument } from '../services/api';
+import {fetchChapterDocument, postCode} from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
 import './DocumentViewer.css';
 
@@ -7,7 +7,6 @@ function DocumentViewer({ chapterName }) {
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showFullCode, setShowFullCode] = useState(false);
 
   useEffect(() => {
     loadDocument();
@@ -42,6 +41,38 @@ function DocumentViewer({ chapterName }) {
     });
     return codeBlocks;
   }, [document]);
+
+  const mergeDocument = (document, execution) => {
+    let id = 0;
+    return {
+      sections: document.sections.map(section => {
+        const newContents = [];
+        section.contents.forEach(content => {
+          if (content.kind === "OUTPUT") {
+            return;  // skip old output
+          }
+          newContents.push(content);
+          if (content.kind === "CODE") {
+            newContents.push({ kind: "OUTPUT", text: execution.evaluations[id++].text});
+          }
+        });
+        return {
+          contents: newContents
+        };
+      })
+    };
+  };
+
+  const runCode = async () => {
+    const codeBlocks = getAllCodeBlocks();
+    const code = {
+      snippets: codeBlocks.map((text, index) => {
+        return { id: index, code: text };
+      })
+    };
+    const execution = await postCode(code);
+    setDocument(document => mergeDocument(document, execution));
+  };
 
   const getCodeStartLine = useCallback((document, contentIndex) => {
     let lineCount = 1;
@@ -83,6 +114,12 @@ function DocumentViewer({ chapterName }) {
         />
       );
     }
+    if (content.kind === "OUTPUT") {
+      return (
+        <div key={contentIndex} className="text-output"
+             dangerouslySetInnerHTML={{ __html: formatText(content.text) }} />
+      );
+    }
   };
 
   const formatText = (text) => {
@@ -118,17 +155,15 @@ function DocumentViewer({ chapterName }) {
     return <div className="error-container">No document found</div>;
   }
 
-  const allCode = getAllCodeBlocks().join('\n\n// ---\n\n');
-
   return (
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
         <button
           className="toggle-code-btn"
-          onClick={() => setShowFullCode(!showFullCode)}
+          onClick={async () => runCode()}
         >
-          {showFullCode ? 'Hide Full Code' : 'Show Full Code'}
+          Run
         </button>
       </div>
 
@@ -144,18 +179,6 @@ function DocumentViewer({ chapterName }) {
           </div>
         ))}
       </div>
-
-      {showFullCode && allCode && (
-        <div className="full-code-view">
-          <h3>Complete Code</h3>
-          <MonacoEditorWrapper
-            code={allCode}
-            startLine={1}
-            showLineHighlight={false}
-            defaultHeight="500px"
-          />
-        </div>
-      )}
     </div>
   );
 }

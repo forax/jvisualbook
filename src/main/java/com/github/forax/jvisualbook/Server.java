@@ -33,6 +33,10 @@ public final class Server {
     return DocumentParser.parse(path);
   }
 
+  private static Model.Execution executeCode(Model.Code code) {
+    return JShellRunner.evaluate(code);
+  }
+
   static void main() {
     WebServer.builder()
         .port(8080)
@@ -53,6 +57,11 @@ public final class Server {
             .get("/api/chapter/{id}", (req, res) -> {
               var id = req.path().pathParameters().get("id");
               res.send(chapterDocument(id));
+            })
+            .post("/api/code", (req, res) -> {
+              var code = req.content().as(Model.Code.class);
+              var execution = executeCode(code);
+              res.send(execution);
             })
         )
         .build()
