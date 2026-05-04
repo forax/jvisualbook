@@ -5,10 +5,6 @@
     overflow: hidden;
 }
 
-.monaco-editor-wrapper.highlighted-block {
-    border-left: 3px solid #3498db;
-}
-
 .editor-loading {
     padding: 1rem;
     background-color: #f8f9fa;

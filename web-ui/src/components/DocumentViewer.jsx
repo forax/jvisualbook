@@ -109,8 +109,6 @@ function DocumentViewer({ chapterName }) {
         <MonacoEditorWrapper
           key={contentIndex}
           code={content.text}
-          startLine={startLine}
-          showLineHighlight={true}
         />
       );
     }

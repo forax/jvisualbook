@@ -2,56 +2,18 @@ import React, { useRef, useEffect, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import './MonacoEditor.css';
 
-function MonacoEditorWrapper({ code, startLine, showLineHighlight = false, defaultHeight }) {
-  const editorRef = useRef(null);
-  const decorationsRef = useRef([]);
-  const [editorHeight, setEditorHeight] = useState(defaultHeight || 'auto');
+function MonacoEditorWrapper({ code }) {
+  const [editorHeight, setEditorHeight] = useState('auto');
 
-  const handleEditorDidMount = (editor, monaco) => {
-    editorRef.current = { editor, monaco };
-
-    if (!defaultHeight) {
-      // Calculate height based on content
-      const lineCount = code.split('\n').length;
-      const lineHeight = 19;
-      const maxHeight = 600;
-      const minHeight = 200;
-      const calculatedHeight = Math.min(maxHeight, Math.max(minHeight, lineCount * lineHeight + 40));
-      setEditorHeight(`${calculatedHeight}px`);
-    }
-
-    if (showLineHighlight) {
-      highlightCodeBlock(editor, monaco, startLine, code);
-    }
-  };
-
-  const highlightCodeBlock = (editor, monaco, startLine, code) => {
+  const handleEditorDidMount = () => {
+    // Calculate height based on content
     const lineCount = code.split('\n').length;
-    const endLine = startLine + lineCount - 1;
-
-    // Create decorations for the current block
-    const decorations = [
-      {
-        range: new monaco.Range(startLine, 1, endLine, 1),
-        options: {
-          isWholeLine: true,
-          className: 'active-code-block',
-        }
-      }
-    ];
-
-    decorationsRef.current = editor.deltaDecorations(decorationsRef.current, decorations);
-
-    // Reveal the line in the editor
-    editor.revealLineInCenter(startLine);
+    const lineHeight = 19;
+    const maxHeight = 600;
+    const minHeight = 40;
+    const calculatedHeight = Math.min(maxHeight, Math.max(minHeight, lineCount * lineHeight + 40));
+    setEditorHeight(`${calculatedHeight}px`);
   };
-
-  useEffect(() => {
-    if (editorRef.current && showLineHighlight) {
-      const { editor, monaco } = editorRef.current;
-      highlightCodeBlock(editor, monaco, startLine, code);
-    }
-  }, [code, startLine, showLineHighlight]);
 
   const options = {
     minimap: { enabled: false },
@@ -68,7 +30,7 @@ function MonacoEditorWrapper({ code, startLine, showLineHighlight = false, defau
   };
 
   return (
-    <div className={`monaco-editor-wrapper ${showLineHighlight ? 'highlighted-block' : ''}`}>
+    <div className="monaco-editor-wrapper">
       <Editor
         height={editorHeight}
         defaultLanguage="java"
