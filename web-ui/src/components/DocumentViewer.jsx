@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
@@ -8,10 +8,23 @@ function DocumentViewer({ chapterName }) {
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isExecutionUpdate = useRef(false);
 
   useEffect(() => {
     loadDocument();
   }, [chapterName]);
+
+  useEffect(() => {
+    if (!document) return;
+    if (isExecutionUpdate.current) {
+      isExecutionUpdate.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      runCode();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [document]);
 
   const loadDocument = async () => {
     try {
@@ -54,7 +67,7 @@ function DocumentViewer({ chapterName }) {
           }
           newContents.push(content);
           if (content.kind === "CODE") {
-            newContents.push({ kind: "OUTPUT", text: execution.evaluations[id++].text});
+            newContents.push({ kind: "OUTPUT", text: execution.evaluations[id++].text });
           }
         });
         return { contents: newContents };
@@ -68,6 +81,8 @@ function DocumentViewer({ chapterName }) {
       snippets: codeBlocks.map(text => ({ code: text }))
     };
     const execution = await postCode(code);
+    // runCode calls setDocument that calls runCode again, we need a flag to stop
+    isExecutionUpdate.current = true;
     setDocument(doc => mergeDocument(doc, execution));
   };
 
@@ -138,7 +153,7 @@ function DocumentViewer({ chapterName }) {
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
-        <button className="toggle-code-btn" onClick={async () => runCode()}>
+        <button className="toggle-code-btn" onClick={runCode}>
           Run
         </button>
       </div>
