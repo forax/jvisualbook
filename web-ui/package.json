@@ -13,9 +13,9 @@
     "vite": "^8.0.10"
   },
   "scripts": {
-    "start": "vite",
+    "copy-monaco": "mkdir public;cp -r node_modules/monaco-editor/min/vs public",
+    "prebuild": "npm run copy-monaco",
     "build": "vite build",
-    "preview": "vite preview",
     "clean": "rm -rf dist"
   }
 }

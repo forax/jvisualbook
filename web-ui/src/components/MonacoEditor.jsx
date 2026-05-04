@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import Editor from '@monaco-editor/react';
+import Editor, { loader } from '@monaco-editor/react';
 import './MonacoEditor.css';
+
+loader.config({
+  paths: { vs: '/vs' },
+});
 
 function MonacoEditorWrapper({ code, onChange }) {
   const [editorHeight, setEditorHeight] = useState('auto');
