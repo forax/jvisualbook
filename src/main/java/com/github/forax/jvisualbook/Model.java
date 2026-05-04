@@ -1,7 +1,5 @@
 package com.github.forax.jvisualbook;
 
-import jdk.jshell.Snippet;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +16,7 @@ public interface Model {
     }
   }
   record Content(Kind kind, String text){
-    enum Kind {
+    public enum Kind {
       TEXT,
       CODE,
       OUTPUT
@@ -41,7 +39,11 @@ public interface Model {
       evaluations = List.copyOf(evaluations);
     }
   }
-  record Evaluation(String text) {
+  record Evaluation(Status status, String text) {
+    public enum Status {
+      ERROR, SUCCESS
+    }
+
     public Evaluation {
       Objects.requireNonNull(text);
     }
