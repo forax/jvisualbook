@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
 import './DocumentViewer.css';
@@ -90,8 +91,9 @@ function DocumentViewer({ chapterName }) {
 
     if (content.kind === "TEXT") {
       return (
-        <div key={contentIndex} className="text-content"
-             dangerouslySetInnerHTML={{ __html: formatText(content.text) }} />
+        <ReactMarkdown key={contentIndex} className="text-content">
+          {content.text}
+        </ReactMarkdown>
       );
     }
     if (content.kind === "CODE") {
@@ -105,21 +107,9 @@ function DocumentViewer({ chapterName }) {
     }
     if (content.kind === "OUTPUT") {
       return (
-        <div key={contentIndex} className="text-output"
-             dangerouslySetInnerHTML={{ __html: formatText(content.text) }} />
+        <pre key={contentIndex} className="text-output">{content.text}</pre>
       );
     }
-  };
-
-  const formatText = (text) => {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br/>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>');
   };
 
   if (loading) {
