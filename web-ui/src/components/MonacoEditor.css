@@ -1,4 +1,5 @@
 .monaco-editor-wrapper {
+    position: relative;
     margin: 1rem 0;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -12,7 +13,28 @@
     color: #666;
 }
 
-/* Custom decorations for active code block */
 .active-code-block {
     background-color: rgba(52, 152, 219, 0.08) !important;
+}
+
+.editor-resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 4px;
+    color: #aaa;
+    z-index: 10;
+    border-radius: 0 0 4px 0;
+    transition: color 0.15s;
+}
+
+.editor-resize-handle:hover {
+    color: #555;
+    background-color: rgba(0, 0, 0, 0.04);
 }
