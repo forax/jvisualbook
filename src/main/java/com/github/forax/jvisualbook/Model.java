@@ -15,11 +15,16 @@ public interface Model {
       contents = List.copyOf(contents);
     }
   }
-  record Content(Kind kind, String text){
+  record Content(Kind kind, String text) {
     public enum Kind {
       TEXT,
       CODE,
       OUTPUT
+    }
+
+    public Content {
+      Objects.requireNonNull(kind);
+      Objects.requireNonNull(text);
     }
   }
 
@@ -45,6 +50,7 @@ public interface Model {
     }
 
     public Evaluation {
+      Objects.requireNonNull(status);
       Objects.requireNonNull(text);
     }
   }
