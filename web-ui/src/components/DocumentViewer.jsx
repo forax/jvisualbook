@@ -166,7 +166,7 @@ function DocumentViewer({ chapterName }) {
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
-        <button className="toggle-code-btn" onClick={() => runCode(loadedDocument)}>
+        <button className="toggle-code-btn" onClick={async () => loadDocument()}>
           Reload
         </button>
       </div>
