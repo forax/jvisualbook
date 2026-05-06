@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
@@ -60,7 +60,6 @@ function DocumentViewer({ chapterName }) {
   }, [chapterName]);
 
   useEffect(() => {
-    if (!loadedDocument) return;
     const timer = setTimeout(() => {
       runCode(loadedDocument);
     }, 1000);
@@ -68,10 +67,10 @@ function DocumentViewer({ chapterName }) {
   }, [loadedDocument]);
 
   const loadDocument = async () => {
+    setLoading(true);
+    setError(null);
+    setDisplayDocument(null);
     try {
-      setLoading(true);
-      setError(null);
-      setDisplayDocument(null);
       const doc = await fetchChapterDocument(chapterName);
       setLoadedDocument(assignUUID(doc));
     } catch (err) {
@@ -96,23 +95,21 @@ function DocumentViewer({ chapterName }) {
     }
   };
 
-  const handleCodeChange = useCallback((contentId, newValue) => {
+  const handleCodeChange =(contentId, newValue) => {
     setLoadedDocument(doc => ({
       sections: doc.sections.map(section => {
         return {
           ...section,
           contents: section.contents.map(content => {
             if (content.id !== contentId) return content;
-            return { ...content, text: newValue };
+            return {...content, text: newValue};
           })
         };
       })
     }));
-  }, []);
+  };
 
   const renderContent = content => {
-    if (!content) return null;
-
     if (content.kind === "TEXT") {
       return (
         <ReactMarkdown key={content.id} className="text-content">
