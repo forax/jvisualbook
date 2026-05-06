@@ -24,14 +24,15 @@ export async function fetchChapterDocument(chapterName) {
   return await response.json();
 }
 
-export async function postCode(code) {
+export async function postCode(code, signal) {
   const response = await fetch(`${API_BASE_URL}/code`, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(code)
+    body: JSON.stringify(code),
+    signal
   });
   if (!response.ok) {
     throw new Error(`Failed to post code : ${JSON.stringify(code)}`);

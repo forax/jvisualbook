@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
@@ -54,16 +54,17 @@ function DocumentViewer({ chapterName }) {
   const [displayDocument, setDisplayDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const codeAbortController = useRef(null);
 
   useEffect(() => {
     loadDocument();
   }, [chapterName]);
 
   useEffect(() => {
+    if (!loadedDocument) return;
     const timer = setTimeout(() => {
-      if (!loadedDocument) return;
       runCode(loadedDocument);
-    }, 1000);
+    }, 500);
     return () => clearTimeout(timer);
   }, [loadedDocument]);
 
@@ -83,30 +84,35 @@ function DocumentViewer({ chapterName }) {
   };
 
   const runCode = async (doc) => {
+    // Abort previous in-flight request
+    codeAbortController.current?.abort();
+    const controller = new AbortController();
+    codeAbortController.current = controller;
+
     const codeBlocks = getCodeBlocks(doc);
     const code = {
       snippets: codeBlocks.map(text => ({ code: text }))
     };
     try {
-      const execution = await postCode(code);
+      const execution = await postCode(code, controller.signal);
       setDisplayDocument(mergeDocument(doc, execution));
     } catch (err) {
+      if (err.name === 'AbortError') return;  // postCode() is aborted
       setError('Failed to run document');
       console.error(err);
     }
   };
 
-  const handleCodeChange =(contentId, newValue) => {
+  const handleCodeChange = (contentId, newValue) => {
+    codeAbortController.current?.abort();
     setLoadedDocument(doc => ({
-      sections: doc.sections.map(section => {
-        return {
-          ...section,
-          contents: section.contents.map(content => {
-            if (content.id !== contentId) return content;
-            return {...content, text: newValue};
-          })
-        };
-      })
+      sections: doc.sections.map(section => ({
+        ...section,
+        contents: section.contents.map(content => {
+          if (content.id !== contentId) return content;
+          return { ...content, text: newValue };
+        })
+      }))
     }));
   };
 
