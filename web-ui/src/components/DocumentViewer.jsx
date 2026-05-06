@@ -36,7 +36,7 @@ function mergeDocument(doc, execution) {
         newContents.push(content);
         if (content.kind === "CODE") {
           const evaluation = execution.evaluations[count++];
-          newContents.push({   // The order of the fields is important!
+          newContents.push({
             kind: "OUTPUT",
             text: evaluation.text,
             id: crypto.randomUUID(),
@@ -61,6 +61,7 @@ function DocumentViewer({ chapterName }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      if (!loadedDocument) return;
       runCode(loadedDocument);
     }, 1000);
     return () => clearTimeout(timer);
