@@ -6,6 +6,20 @@ loader.config({
   paths: { vs: '/vs' },
 });
 
+const options = {
+  minimap: { enabled: false },
+  lineNumbers: 'on',
+  scrollBeyondLastLine: true,
+  readOnly: false,
+  automaticLayout: true,
+  fontSize: 14,
+  lineHeight: 19,
+  padding: { top: 10, bottom: 10 },
+  folding: true,
+  renderLineHighlight: 'none',
+  wordWrap: 'on',
+};
+
 function MonacoEditorWrapper({ code, onChange }) {
   const [editorHeight, setEditorHeight] = useState('auto');
   const [manualHeight, setManualHeight] = useState(null);
@@ -48,20 +62,6 @@ function MonacoEditorWrapper({ code, onChange }) {
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
   }, []);
-
-  const options = {
-    minimap: { enabled: false },
-    lineNumbers: 'on',
-    scrollBeyondLastLine: true,
-    readOnly: false,
-    automaticLayout: true,
-    fontSize: 14,
-    lineHeight: 19,
-    padding: { top: 10, bottom: 10 },
-    folding: true,
-    renderLineHighlight: 'none',
-    wordWrap: 'on',
-  };
 
   return (
     <div className="monaco-editor-wrapper" ref={wrapperRef}>
