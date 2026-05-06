@@ -139,8 +139,7 @@ function DocumentViewer({ chapterName }) {
         <pre key={content.id} className={`text-output ${status}`}>{content.text}</pre>
       );
     }
-
-    console.warn('Unknown content kind:', content.kind);
+    throw Error('Unknown content kind:', content.kind);
   };
 
   if (loading) {
@@ -170,7 +169,7 @@ function DocumentViewer({ chapterName }) {
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
-        <button className="toggle-code-btn" onClick={async () => loadDocument()}>
+        <button className="toggle-code-btn" onClick={loadDocument}>
           Reload
         </button>
       </div>
