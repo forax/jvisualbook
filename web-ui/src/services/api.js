@@ -4,7 +4,6 @@ export async function fetchChapters() {
   const response = await fetch(`${API_BASE_URL}/chapter`, {
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
     }
   });
   if (!response.ok) {
@@ -17,7 +16,6 @@ export async function fetchChapterDocument(chapterName) {
   const response = await fetch(`${API_BASE_URL}/chapter/${encodeURIComponent(chapterName)}`, {
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
     }
   });
   if (!response.ok) {
