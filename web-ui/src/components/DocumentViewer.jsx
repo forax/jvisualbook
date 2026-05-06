@@ -5,15 +5,18 @@ import MonacoEditorWrapper from './MonacoEditor';
 import './DocumentViewer.css';
 
 function assignUUID(doc) {
-  doc.sections.forEach(section => {
-    section.contents.forEach(content => {
-      content.id = crypto.randomUUID();
-    })
-  })
+  return {
+    sections: doc.sections.map(section => ({
+      ...section,
+      contents: section.contents.map(content => ({
+        ...content,
+        id: crypto.randomUUID()
+      }))
+    }))
+  };
 }
 
 function getCodeBlocks(doc) {
-  if (!doc?.sections) return [];
   return doc.sections.flatMap(section =>
     section.contents
       .filter(content => content.kind === "CODE")
@@ -70,8 +73,7 @@ function DocumentViewer({ chapterName }) {
       setError(null);
       setDisplayDocument(null);
       const doc = await fetchChapterDocument(chapterName);
-      assignUUID(doc);
-      setLoadedDocument(doc);
+      setLoadedDocument(assignUUID(doc));
     } catch (err) {
       setError('Failed to load document');
       console.error(err);
@@ -85,8 +87,13 @@ function DocumentViewer({ chapterName }) {
     const code = {
       snippets: codeBlocks.map(text => ({ code: text }))
     };
-    const execution = await postCode(code);
-    setDisplayDocument(mergeDocument(doc, execution));
+    try {
+      const execution = await postCode(code);
+      setDisplayDocument(mergeDocument(doc, execution));
+    } catch (err) {
+      setError('Failed to run document');
+      console.error(err);
+    }
   };
 
   const handleCodeChange = useCallback((contentId, newValue) => {
