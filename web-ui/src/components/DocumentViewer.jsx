@@ -1,37 +1,77 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
 import './DocumentViewer.css';
 
+function assignUUID(doc) {
+  doc.sections.forEach(section => {
+    section.contents.forEach(content => {
+      content.id = crypto.randomUUID();
+    })
+  })
+}
+
+function getCodeBlocks(doc) {
+  if (!doc?.sections) return [];
+  return doc.sections.flatMap(section =>
+    section.contents
+      .filter(content => content.kind === "CODE")
+      .map(content => content.text)
+  );
+}
+
+function mergeDocument(doc, execution) {
+  let count = 0;
+  return {
+    sections: doc.sections.map(section => {
+      const newContents = [];
+      section.contents.forEach(content => {
+        if (content.kind === "OUTPUT") {
+          return; // Skip old output
+        }
+        newContents.push(content);
+        if (content.kind === "CODE") {
+          const evaluation = execution.evaluations[count++];
+          newContents.push({   // The order of the fields is important!
+            kind: "OUTPUT",
+            text: evaluation.text,
+            id: crypto.randomUUID(),
+            status: evaluation.status,
+          });
+        }
+      });
+      return { ...section, contents: newContents };
+    })
+  };
+}
+
 function DocumentViewer({ chapterName }) {
-  const [document, setDocument] = useState(null);
+  const [loadedDocument, setLoadedDocument] = useState(null);
+  const [displayDocument, setDisplayDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const isExecutionUpdate = useRef(false);
 
   useEffect(() => {
     loadDocument();
   }, [chapterName]);
 
   useEffect(() => {
-    if (!document) return;
-    if (isExecutionUpdate.current) {
-      isExecutionUpdate.current = false;
-      return;
-    }
+    if (!loadedDocument) return;
     const timer = setTimeout(() => {
-      runCode();
+      runCode(loadedDocument);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [document]);
+  }, [loadedDocument]);
 
   const loadDocument = async () => {
     try {
       setLoading(true);
       setError(null);
+      setDisplayDocument(null);
       const doc = await fetchChapterDocument(chapterName);
-      setDocument(doc);
+      assignUUID(doc);
+      setLoadedDocument(doc);
     } catch (err) {
       setError('Failed to load document');
       console.error(err);
@@ -40,61 +80,22 @@ function DocumentViewer({ chapterName }) {
     }
   };
 
-  const getAllCodeBlocks = useCallback(() => {
-    if (!document || !document.sections) return [];
-
-    const codeBlocks = [];
-    document.sections.forEach(section => {
-      if (section.contents) {
-        section.contents.forEach(content => {
-          if (content.kind === "CODE") {
-            codeBlocks.push(content.text);
-          }
-        });
-      }
-    });
-    return codeBlocks;
-  }, [document]);
-
-  const mergeDocument = (document, execution) => {
-    let id = 0;
-    return {
-      sections: document.sections.map(section => {
-        const newContents = [];
-        section.contents.forEach(content => {
-          if (content.kind === "OUTPUT") {
-            return; // skip old output
-          }
-          newContents.push(content);
-          if (content.kind === "CODE") {
-            var evaluation = execution.evaluations[id++];
-            newContents.push({ kind: "OUTPUT", status: evaluation.status, text: evaluation.text });
-          }
-        });
-        return { ...section, contents: newContents };
-      })
-    };
-  };
-
-  const runCode = async () => {
-    const codeBlocks = getAllCodeBlocks();
+  const runCode = async (doc) => {
+    const codeBlocks = getCodeBlocks(doc);
     const code = {
       snippets: codeBlocks.map(text => ({ code: text }))
     };
     const execution = await postCode(code);
-    // runCode calls setDocument that calls runCode again, we need a flag to stop
-    isExecutionUpdate.current = true;
-    setDocument(doc => mergeDocument(doc, execution));
+    setDisplayDocument(mergeDocument(doc, execution));
   };
 
-  const handleCodeChange = useCallback((sectionIndex, contentIndex, newValue) => {
-    setDocument(doc => ({
-      sections: doc.sections.map((section, si) => {
-        if (si !== sectionIndex) return section;
+  const handleCodeChange = useCallback((contentId, newValue) => {
+    setLoadedDocument(doc => ({
+      sections: doc.sections.map(section => {
         return {
           ...section,
-          contents: section.contents.map((content, ci) => {
-            if (ci !== contentIndex) return content;
+          contents: section.contents.map(content => {
+            if (content.id !== contentId) return content;
             return { ...content, text: newValue };
           })
         };
@@ -102,12 +103,12 @@ function DocumentViewer({ chapterName }) {
     }));
   }, []);
 
-  const renderContent = (content, sectionIndex, contentIndex) => {
+  const renderContent = content => {
     if (!content) return null;
 
     if (content.kind === "TEXT") {
       return (
-        <ReactMarkdown key={contentIndex} className="text-content">
+        <ReactMarkdown key={content.id} className="text-content">
           {content.text}
         </ReactMarkdown>
       );
@@ -115,18 +116,20 @@ function DocumentViewer({ chapterName }) {
     if (content.kind === "CODE") {
       return (
         <MonacoEditorWrapper
-          key={contentIndex}
+          key={content.id}
           code={content.text}
-          onChange={val => handleCodeChange(sectionIndex, contentIndex, val)}
+          onChange={val => handleCodeChange(content.id, val)}
         />
       );
     }
     if (content.kind === "OUTPUT") {
       const status = content.status === "ERROR" ? "status-error" : "";
       return (
-        <pre key={contentIndex} className={`text-output ${status}`}>{content.text}</pre>
+        <pre key={content.id} className={`text-output ${status}`}>{content.text}</pre>
       );
     }
+
+    console.warn('Unknown content kind:', content.kind);
   };
 
   if (loading) {
@@ -147,7 +150,8 @@ function DocumentViewer({ chapterName }) {
     );
   }
 
-  if (!document || !document.sections) {
+  const docToRender = displayDocument ?? loadedDocument;
+  if (!docToRender?.sections) {
     return <div className="error-container">No document found</div>;
   }
 
@@ -155,21 +159,21 @@ function DocumentViewer({ chapterName }) {
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
-        <button className="toggle-code-btn" onClick={runCode}>
-          Run
+        <button className="toggle-code-btn" onClick={() => runCode(loadedDocument)}>
+          Reload
         </button>
       </div>
 
       <div className="document-content">
-        {document.sections.map((section, sectionIndex) => (
+        {docToRender.sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="section">
             <ReactMarkdown className="section-title">
               {section.title}
             </ReactMarkdown>
-           <br/>
+            <br/>
             <div className="section-contents">
-              {section.contents?.map((content, contentIndex) =>
-                renderContent(content, sectionIndex, contentIndex)
+              {section.contents.map(content =>
+                renderContent(content)
               )}
             </div>
           </div>
