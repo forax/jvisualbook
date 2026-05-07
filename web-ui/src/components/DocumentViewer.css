@@ -14,9 +14,9 @@
     border-bottom: 2px solid #3498db;
 }
 
-.chapter-title {
-    color: #34495e;
-    margin: 0;
+.toolbar-actions {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .toggle-code-btn {
@@ -32,6 +32,11 @@
 
 .toggle-code-btn:hover {
     background-color: #2980b9;
+}
+
+.chapter-title {
+    color: #34495e;
+    margin: 0;
 }
 
 .section {

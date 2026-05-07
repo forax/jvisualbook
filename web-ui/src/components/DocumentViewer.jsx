@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
+import SlideViewer from './SlideViewer';
 import './DocumentViewer.css';
 
 function assignUUID(doc) {
@@ -54,6 +55,7 @@ function DocumentViewer({ chapterName }) {
   const [displayDocument, setDisplayDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [slideMode, setSlideMode] = useState(false);
   const codeAbortController = useRef(null);
 
   useEffect(() => {
@@ -84,7 +86,6 @@ function DocumentViewer({ chapterName }) {
   };
 
   const runCode = async (doc) => {
-    // Abort previous in-flight request
     codeAbortController.current?.abort();
     const controller = new AbortController();
     codeAbortController.current = controller;
@@ -165,13 +166,29 @@ function DocumentViewer({ chapterName }) {
     return <div className="error-container">No document found</div>;
   }
 
+  if (slideMode) {
+    return (
+      <SlideViewer
+        doc={docToRender}
+        chapterName={chapterName}
+        onExit={() => setSlideMode(false)}
+        renderContent={renderContent}
+      />
+    );
+  }
+
   return (
     <div className="document-viewer">
       <div className="document-toolbar">
         <h2 className="chapter-title">Chapter: {chapterName}</h2>
-        <button className="toggle-code-btn" onClick={loadDocument}>
-          Reload
-        </button>
+        <div className="toolbar-actions">
+          <button className="toggle-code-btn" onClick={() => setSlideMode(true)}>
+            Slide Mode
+          </button>
+          <button className="toggle-code-btn" onClick={loadDocument}>
+            Reload
+          </button>
+        </div>
       </div>
 
       <div className="document-content">

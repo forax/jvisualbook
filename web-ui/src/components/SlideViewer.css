@@ -1,0 +1,128 @@
+.slide-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #1e272e;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+/* ── Bottom bar ── */
+.slide-bottombar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.2rem 0.5rem;
+    background-color: #2c3e50;
+    color: white;
+    flex-shrink: 0;
+}
+
+.slide-chapter {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.slide-counter {
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Stage: nav buttons + card ── */
+.slide-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    overflow: hidden;
+    padding: 1rem 0.5rem;
+}
+
+/* ── Nav arrows ── */
+.slide-nav {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: #ecf0f1;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide-nav:hover:not(:disabled) {
+    background: rgba(255,255,255,0.25);
+}
+
+.slide-nav:disabled {
+    opacity: 0.2;
+    cursor: default;
+}
+
+/* ── Slide card ── */
+.slide-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    padding: 2.5rem 3rem;
+    max-width: 90%;
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.slide-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.slide-title p { margin: 0; }
+
+.slide-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ── Dot navigation ── */
+.slide-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.5rem;
+    flex-shrink: 0;
+}
+
+.slide-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: #7f8c8d;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.slide-dot.active {
+    background: #ecf0f1;
+    transform: scale(1.3);
+}
+
+.slide-dot:hover:not(.active) {
+    background: rgba(255,255,255,0.6);
+}
