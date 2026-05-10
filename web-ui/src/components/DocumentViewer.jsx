@@ -135,9 +135,10 @@ function DocumentViewer({ chapterName }) {
       );
     }
     if (content.kind === "OUTPUT") {
+      const text = content.text;
       const status = content.status === "ERROR" ? "status-error" : "";
-      return (
-        <pre key={content.id} className={`text-output ${status}`}>{content.text}</pre>
+      return text && (
+        <pre key={content.id} className={`text-output ${status}`}>{text}</pre>
       );
     }
     throw Error('Unknown content kind:', content.kind);
