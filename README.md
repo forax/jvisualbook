@@ -24,7 +24,9 @@ JShell evaluation enables preview features using the current runtime feature ver
 
 ## Quick start
 
-Build the jar first (see [Build](#build)), then run it from the folder containing your `.jsh` files:
+Build the jar first (see [Build](#build)), 
+or use [prebuild release](https://github.com/forax/jvisualbook/releases/latest) from Github, 
+then run it from the folder containing your `.jsh` files:
 
 ```bash
 java -jar jvisualbook-1.0.jar
