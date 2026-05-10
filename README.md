@@ -120,7 +120,7 @@ JVisualBook assumes a trusted local user:
 
 ## Build
 
-Requires Maven 3.9+ and JDK 25+. Node.js does not need to be installed globally —
+Requires Maven 3.9+ and JDK 25+. Node.js does not need to be installed globally,
 the build downloads a local copy of Node and npm automatically.
 
 ```bash
