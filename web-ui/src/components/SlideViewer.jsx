@@ -22,9 +22,14 @@ function SlideViewer({ doc, chapterName, onExit, renderContent }) {
   if (!sections.length) return null;
 
   const section = sections[idx];
+  const progress = (idx / (sections.length - 1)) * 100;
 
   return (
     <div className="slide-overlay">
+      <div className="slide-progress">
+        <div className="slide-progress-fill" style={{ width: `${progress}%` }} />
+      </div>
+
       <div className="slide-stage">
         <button
           className="slide-nav slide-nav-prev"
@@ -48,20 +53,7 @@ function SlideViewer({ doc, chapterName, onExit, renderContent }) {
           disabled={idx === sections.length - 1}
           aria-label="Next slide"
         >&#8250;</button>
-      </div>
 
-      <div className="slide-bottombar">
-        <span className="slide-chapter">{chapterName}</span>
-        <div className="slide-dots">
-          {sections.map((_, i) => (
-            <button
-              key={i}
-              className={`slide-dot${i === idx ? ' active' : ''}`}
-              onClick={() => setIdx(i)}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
         <span className="slide-counter">{idx + 1} / {sections.length}</span>
       </div>
     </div>
