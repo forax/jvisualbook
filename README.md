@@ -43,9 +43,9 @@ Chapter names are the file names without the `.jsh` extension, sorted alphabetic
 
 A chapter is composed of sections. Each section starts with a heading and alternates text blocks and code.
 
-Comment lines before the first section heading are dropped during parsing,
-so you can use that "prologue"to explain how to open the file in JVisualBook or
-to provide any other preamble that should not appear in the rendered document.
+Comment lines before the first section heading are dropped during parsing.
+You can use this "prologue" for anything that should not appear in the rendered document,
+such as instructions on how to open the file in JVisualBook.
 
 ### Section headings
 
