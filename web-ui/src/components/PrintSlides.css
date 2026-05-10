@@ -1,3 +1,8 @@
+@page {
+    size: A4 landscape;
+    margin: 0;
+}
+
 /* Only active during printing */
 @media print {
     /* Hide everything on the page */
@@ -11,7 +16,7 @@
     }
 
     #print-slides-root .print-slide {
-        page-break-after: always;   /* Ons slide per page */
+        page-break-after: always;
         break-after: page;
         width: 100%;
         min-height: 100vh;
