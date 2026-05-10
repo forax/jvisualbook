@@ -142,7 +142,7 @@ function DocumentViewer({ chapterName }) {
         <pre key={content.id} className={`text-output ${status}`}>{text}</pre>
       );
     }
-    throw Error('Unknown content kind:', content.kind);
+    throw Error(`Unknown content kind: ${content.kind}`);
   };
 
   if (loading) {
