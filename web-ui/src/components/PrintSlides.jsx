@@ -19,12 +19,8 @@ export function printSlidesAsPDF(doc, chapterName) {
 
   const root = ReactDOM.createRoot(container);
   root.render(<PrintSlides doc={doc} chapterName={chapterName} onReady={() => {
+    window.onafterprint = () => { root.unmount(); container.remove(); };
     window.print();
-    // Clean up after the print dialog closes
-    setTimeout(() => {
-      root.unmount();
-      container.remove();
-    }, 500);
   }} />);
 }
 
