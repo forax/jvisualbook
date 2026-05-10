@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public final class Server {
   private record Chapter(String name) {}
@@ -42,6 +43,8 @@ public final class Server {
     return JShellRunner.evaluate(code);
   }
 
+  private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+");
+
   static void main() {
     // Helidon do not want to allow all classes to be serialized but jshell requires that
     // -Djdk.serialFilter=* -Dhelidon.serialFilter.failure.action=warn
@@ -70,7 +73,7 @@ public final class Server {
             })
             .get("/api/chapter/{id}", (req, res) -> {
               var id = req.path().pathParameters().get("id");
-              if (id.contains(".") || id.contains(File.separator)) {
+              if (!ID_PATTERN.matcher(id).matches()) {
                 res.status(Status.BAD_REQUEST_400).send(Map.of("id", id));
                 return;
               }
