@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Server {
-  record Chapter(String name) {}
+  private record Chapter(String name) {}
 
   private static String removeExtension(String filename) {
     return filename.substring(0, filename.lastIndexOf('.'));
