@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   build: {
-    minify: false,
-    cssMinify: false,
+    //minify: false,
+    //cssMinify: false,
   }
 })
