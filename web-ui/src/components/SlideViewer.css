@@ -93,6 +93,23 @@
     margin: 0.1rem 0;
 }
 
+@keyframes card-in {
+    from {
+        transform: scale(0.96);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.slide-fade {
+    animation: card-in 250ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slide-fade { animation: none; }
+}
+
 .slide-title {
     font-size: 1.6rem;
     font-weight: 700;

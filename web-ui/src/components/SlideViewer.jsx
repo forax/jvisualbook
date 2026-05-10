@@ -39,11 +39,13 @@ function SlideViewer({ doc, chapterName, onExit, renderContent }) {
         >&#8249;</button>
 
         <div className="slide-card">
-          {section.title && (
-            <ReactMarkdown className="slide-title">{section.title}</ReactMarkdown>
-          )}
-          <div className="slide-body">
-            {section.contents.map(c => renderContent(c))}
+          <div key={idx} className="slide-fade">   {/* ← key drives the animation */}
+            {section.title && (
+              <ReactMarkdown className="slide-title">{section.title}</ReactMarkdown>
+            )}
+            <div className="slide-body">
+              {section.contents.map(c => renderContent(c))}
+            </div>
           </div>
         </div>
 
