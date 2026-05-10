@@ -10,6 +10,7 @@ import java.io.ObjectInputFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public final class Server {
   record Chapter(String name) {}
@@ -58,12 +59,20 @@ public final class Server {
             .build()
         )
         .routing(it -> it
-            .get("/api/chapter", (_, res) ->
-                res.send(allChapters())
-            )
+            .get("/api/chapter", (_, res) -> {
+              try {
+                res.send(allChapters());
+              } catch (IOException e) {
+                res.status(404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+              }
+            })
             .get("/api/chapter/{id}", (req, res) -> {
               var id = req.path().pathParameters().get("id");
-              res.send(chapterDocument(id));
+              try {
+                res.send(chapterDocument(id));
+              } catch (IOException e) {
+                res.status(404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+              }
             })
             .post("/api/code", (req, res) -> {
               var code = req.content().as(Model.Code.class);
