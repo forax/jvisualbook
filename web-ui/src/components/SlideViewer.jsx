@@ -22,7 +22,7 @@ function SlideViewer({ doc, chapterName, onExit, renderContent }) {
   if (!sections.length) return null;
 
   const section = sections[idx];
-  const progress = (idx / (sections.length - 1)) * 100;
+  const progress = sections.length <= 1 ? 100 : (idx / (sections.length - 1)) * 100;
 
   return (
     <div className="slide-overlay">
