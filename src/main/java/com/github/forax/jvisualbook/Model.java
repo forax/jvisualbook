@@ -18,8 +18,7 @@ public interface Model {
   record Content(Kind kind, String text) {
     public enum Kind {
       TEXT,
-      CODE,
-      OUTPUT
+      CODE
     }
 
     public Content {
