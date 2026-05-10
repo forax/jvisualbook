@@ -6,6 +6,7 @@ import io.helidon.webserver.WebServer;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 
 import java.io.IOException;
+import java.io.ObjectInputFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -38,6 +39,11 @@ public final class Server {
   }
 
   static void main() {
+    // Helidon do not want to allow all classes to be serialized but jshell requires that
+    // -Djdk.serialFilter=* -Dhelidon.serialFilter.failure.action=warn
+    ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
+    System.setProperty("helidon.serialFilter.failure.action", "warn");
+
     WebServer.builder()
         .port(8080)
         .host("localhost")
