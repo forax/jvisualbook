@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public final class JShellRunnerIT {
 
@@ -153,13 +154,18 @@ public final class JShellRunnerIT {
     assertEquals("3\n", execution.evaluations().getFirst().text());
   }
 
-  @Test
-  public void evaluateValueClassAcmp() {
+  private static boolean isValueClassEnabled() {
     try {
       Class.class.getMethod("isValue");
+      return true;
     } catch (NoSuchMethodException e) {
-      return;  // value class are not supported
+      return false;
     }
+  }
+
+  @Test
+  public void evaluateValueClassAcmp() {
+    assumeTrue(isValueClassEnabled());
 
     var snippet = new Model.Snippet("""
         value record Point(int x, int y) {}
@@ -177,11 +183,7 @@ public final class JShellRunnerIT {
 
   @Test
   public void evaluateSynchronizedWithAValueClass() {
-    try {
-      Class.class.getMethod("isValue");
-    } catch (NoSuchMethodException e) {
-      return;  // value class are not supported
-    }
+    assumeTrue(isValueClassEnabled());
 
     var snippet = new Model.Snippet("""
         value record Point(int x, int y) {}
