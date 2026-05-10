@@ -24,6 +24,7 @@ public final class Server {
           .map(f -> f.getFileName().toString())
           .filter(n -> n.endsWith(".jsh"))
           .map(Server::removeExtension)
+          .sorted()
           .map(Chapter::new)
           .toList();
     }
