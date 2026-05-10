@@ -1,16 +1,19 @@
 package com.github.forax.jvisualbook;
 
+import io.helidon.http.Status;
 import io.helidon.http.media.MediaContext;
 import io.helidon.http.media.jackson.JacksonSupport;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public final class Server {
   record Chapter(String name) {}
@@ -63,15 +66,19 @@ public final class Server {
               try {
                 res.send(allChapters());
               } catch (IOException e) {
-                res.status(404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+                res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
               }
             })
             .get("/api/chapter/{id}", (req, res) -> {
               var id = req.path().pathParameters().get("id");
+              if (id.contains(".") || id.contains(File.separator)) {
+                res.status(Status.BAD_REQUEST_400).send(Map.of("id", id));
+                return;
+              }
               try {
                 res.send(chapterDocument(id));
               } catch (IOException e) {
-                res.status(404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+                res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
               }
             })
             .post("/api/code", (req, res) -> {
