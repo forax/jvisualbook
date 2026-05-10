@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
 import SlideViewer from './SlideViewer';
+import { printSlidesAsPDF } from './PrintSlides';
 import './DocumentViewer.css';
 
 function assignUUID(doc) {
@@ -185,6 +186,9 @@ function DocumentViewer({ chapterName }) {
         <div className="toolbar-actions">
           <button className="toggle-code-btn" onClick={() => setSlideMode(true)}>
             Slide Mode
+          </button>
+          <button className="toggle-code-btn" onClick={() => printSlidesAsPDF(docToRender, chapterName)}>
+            Print Slides
           </button>
           <button className="toggle-code-btn" onClick={loadDocument}>
             Reload
