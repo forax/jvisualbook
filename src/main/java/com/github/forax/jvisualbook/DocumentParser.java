@@ -54,20 +54,20 @@ public final class DocumentParser {
     default void endDocument() { /*empty*/ }
     default void start(LineKind kind) {
       switch(kind) {
+        case null -> throw null;
         case CODE -> startCode();
         case TEXT -> startText();
         case SECTION -> startSection();
-        //$CASES-OMITTED$
-        default -> throw new AssertionError();
+        case BLANK -> throw new AssertionError();
       }
     }
     default void end(LineKind kind) {
       switch(kind) {
+        case null -> throw null;
         case CODE -> endCode();
         case TEXT -> endText();
         case SECTION -> endSection();
-        //$CASES-OMITTED$
-        default -> throw new AssertionError();
+        case BLANK -> throw new AssertionError();
       }
     }
     default void startCode() { /*empty*/ }
