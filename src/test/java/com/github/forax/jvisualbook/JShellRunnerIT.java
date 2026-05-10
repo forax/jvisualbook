@@ -153,6 +153,49 @@ public final class JShellRunnerIT {
     assertEquals("3\n", execution.evaluations().getFirst().text());
   }
 
+  @Test
+  public void evaluateValueClassAcmp() {
+    try {
+      Class.class.getMethod("isValue");
+    } catch (NoSuchMethodException e) {
+      return;  // value class are not supported
+    }
+
+    var snippet = new Model.Snippet("""
+        value record Point(int x, int y) {}
+        
+        Point p1 = new Point(1, 2);
+        Point p2 = new Point(1, 2);
+        IO.println(p1 == p2);  // true
+        """);
+    var code = new Model.Code(List.of(snippet));
+    var execution = JShellRunner.evaluate(code);
+    var expected = new Model.Execution(
+        List.of(new Model.Evaluation(Model.Evaluation.Status.SUCCESS, "true\n")));
+    assertEquals(expected, execution);
+  }
+
+  @Test
+  public void evaluateSynchronizedWithAValueClass() {
+    try {
+      Class.class.getMethod("isValue");
+    } catch (NoSuchMethodException e) {
+      return;  // value class are not supported
+    }
+
+    var snippet = new Model.Snippet("""
+        value record Point(int x, int y) {}
+        
+        Point p = new Point(1, 2);
+        Object o = p;
+        synchronized(o) { }
+        """);
+    var code = new Model.Code(List.of(snippet));
+    var execution = JShellRunner.evaluate(code);
+    assertEquals(1, execution.evaluations().size());
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
+  }
+
   // --- Parse/syntax errors ---
 
   @Test
@@ -247,5 +290,14 @@ public final class JShellRunnerIT {
     var execution = JShellRunner.evaluate(code);
     assertEquals(Model.Evaluation.Status.SUCCESS, execution.evaluations().get(1).status());
     assertEquals("16\n", execution.evaluations().get(1).text());
+  }
+
+  @Test
+  public void evaluateMissingRefrence() {
+    var code = new Model.Code(List.of(new Model.Snippet("""
+        IO.println(a);
+        """)));
+    var execution = JShellRunner.evaluate(code);
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 }
