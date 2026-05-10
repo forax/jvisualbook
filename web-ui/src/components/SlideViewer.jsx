@@ -11,9 +11,12 @@ function SlideViewer({ doc, chapterName, onExit, renderContent }) {
 
   useEffect(() => {
     const onKey = e => {
-      if (e.key === 'ArrowLeft')  prev();
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'Escape')     onExit();
+      switch (e.code) {
+        case 'ArrowLeft': prev(); break;
+        case 'ArrowRight': next(); break;
+        case 'Space': next(); break;
+        case 'Escape': onExit(); break;
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
