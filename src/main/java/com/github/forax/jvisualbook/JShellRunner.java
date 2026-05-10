@@ -47,7 +47,7 @@ public final class JShellRunner {
       var info = analysis.analyzeCompletion(source);
       var unit = info.source();
       var remaining = info.remaining();
-      if (unit == null) {  // analyze fails consume the remaining of the source
+      if (unit == null) {
         unit = remaining;
         remaining = "";
       }
