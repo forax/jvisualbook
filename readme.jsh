@@ -32,7 +32,7 @@
 // # Anatomy of a .jsh file
 
 // A `.jsh` file is a plain JShell script with a simple convention:
-//   - Lines starting with `// #` are **section titles** (headings).
+//   - Lines starting with `// #` are **section titles** (headings in Markdown).
 //   - Lines starting with `// ` (note the space) are **text** (Markdown).
 //   - Any other non-blank line is **code**.
 //   - Blank lines act as separators.
