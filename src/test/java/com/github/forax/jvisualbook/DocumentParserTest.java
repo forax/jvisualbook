@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public final class DocumentParserTest {
   @Test
   public void parse() throws IOException {
-    var document = DocumentParser.parse(Path.of("intro.jsh"));
+    var document = DocumentParser.parse(Path.of("readme.jsh"));
     IO.println(document);
   }
 }
