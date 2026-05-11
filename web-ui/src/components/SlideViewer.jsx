@@ -14,7 +14,6 @@ function SlideViewer({ doc, chapterName, onExit, renderContent }) {
       switch (e.code) {
         case 'ArrowLeft': prev(); break;
         case 'ArrowRight': next(); break;
-        case 'Space': next(); break;
         case 'Escape': onExit(); break;
       }
     };
