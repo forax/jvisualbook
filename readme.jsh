@@ -1,5 +1,6 @@
 // Welcome to JVisualBook
 // A JShell-powered interactive notebook — like a Python notebook, but for Java.
+// JVisualBook runs local Java code from `.jsh` files.
 // To start JVisualBook, open a terminal in the folder containing your .jsh files
 // and run:
 //     java -jar jvisualbook-*.jar
@@ -11,40 +12,49 @@
 // in your browser. Each file is a chapter made of sections. Every section can
 // contain explanatory text (written as comments) and executable Java code.
 
-// When you open a chapter, all code blocks are automatically run top-to-bottom
-// and their output is shown inline below each block.
+// When you open a chapter, JVisualBook evaluates all code blocks from top to
+// bottom in one JShell session and shows each block's output inline below it.
 
-// You can **edit any code block** directly in the browser and the notebook will
-// re-run it (and all subsequent blocks) after a short pause.
+// You can **edit any code block** directly in the browser. After a short pause,
+// the notebook is evaluated again from the beginning, so later blocks see the
+// declarations created by earlier blocks in the edited version.
 
-// # How to start the server
+// ## Requirements
 
-// From the project root, run the fat JAR produced by `mvn package`:
+// JVisualBook requires **Java 25 or newer**.
+
+// ## How to start the server
+
+// Start the server from the directory that contains the `.jsh` chapters you
+// want to browse. For example, from the project root after building:
 // ```bash
 // java -jar target/jvisualbook-*.jar
 // ```
 // Then open your browser at: `http://localhost:8080`
 
-// The server scans the **current working directory** for `.jsh` files and
-// lists them as chapters in the top navigation bar.
-// Place your `.jsh` files in the same directory you launch the JAR from.
+// The server listens on `localhost:8080`, scans the **current working directory**
+// for `.jsh` files, and lists them as chapters in alphabetical order in the top
+// navigation menu.
+// Chapter names come from the file names without the `.jsh` extension.
+// Use descriptive names like `01-introduction.jsh`, `02-generics.jsh`, etc.
+// to keep them ordered.
 
 // # Anatomy of a .jsh file
 
 // A `.jsh` file is a plain JShell script with a simple convention:
-//   - Lines starting with `// #` are **section titles** (headings in Markdown).
-//   - Lines starting with `// ` (note the space) are **text** (Markdown).
+//   - Lines starting with `// #` are **section titles** (rendered as Markdown).
+//   - Lines starting with `// ` (note the space) are **text** (rendered as Markdown).
 //   - Any other non-blank line is **code**.
-//   - Blank lines act as separators.
+//   - Blank lines separate adjacent text and code blocks.
 
 // ## Header and sections
 
-// The very first block of `// ` lines at the top of the file
-// (before the first blank line) is treated as a file-level header and is **not** shown.
-// It is a good place for a title and a short description, like this file.
+// Leading text lines (`// `) at the very top of the file are treated as a
+// file-level prologue and are **not** shown. You can use that prologue for a
+// title, a short description, or instructions for opening the file.
 
-// Sections starts with `// #` headings.
-// Everything between two headings belongs to the same section (one slide in Slide Mode).
+// Sections start with `// #` headings. Everything between two headings belongs
+// to the same section, and each section becomes one slide in Slide Mode.
 
 // ## Your first section: Hello, World!
 
@@ -53,18 +63,31 @@
 
 IO.println("Hello from JVisualBook!");
 
-// ## State are shared across blocks
+// # Text formatting with Markdown
 
-// Within a chapter, the JShell session is **shared**: imports, classes, methods,
-// and variables are declared in one code block are visible in all subsequent blocks.
-// This lets you build up a story step by step.
+// Text lines (`// `) are rendered as **Markdown**, so you can use:
+// - `*italic*` and `**bold**`
+// - `` `inline code` ``
+// - Bullet lists (like this one)
+// - `> blockquotes`
+// - Fenced code blocks (for non-executable examples)
+
+// Keep each paragraph as a consecutive run of `// ` lines.
+
+// A blank line between comment blocks starts a new Markdown paragraph.
+
+// ## State is shared across blocks
+
+// Within a chapter (a .jsh file), the JShell session is **shared**: imports, classes,
+// records, methods, and variables declared in one code block are visible in all
+// subsequent blocks. This lets you build up a story step by step.
 
 import module java.base;
 
-var message = "JVisualBook";
-var year    = 2025;
+var message = "Hello Java";
+var version = Runtime.version().feature();
 
-IO.println("Welcome to " + message + " (" + year + ")");
+IO.println(message + " " + version);
 
 // ## Multiple statements in one block
 
@@ -99,30 +122,17 @@ IO.println(String.join("\n", results));
 // ## Error handling
 
 // If a code block contains a syntax or runtime error, the error message is
-// displayed in **red** below the block. Later blocks are still executed independently.
-// An error in one block does not abort the whole chapter.
+// displayed in **red** below the block. Later blocks are still evaluated in the
+// same chapter run; they will only fail if they depend on a declaration that the
+// errored block failed to create.
 
-// Fix the error in the editor and the notebook re-runs automatically.
+// Fix the error in the editor and the notebook re-runs automatically
+// from the beginning.
 
-// The next line shows what an error looks like:
+// The next line intentionally shows what an error looks like:
 int broken = ;
 
-// # Text formatting with Markdown
-
-// Text lines (`// `) are rendered as **Markdown**, so you can use:
-// - `*italic*` and `**bold**`
-// - `` `inline code` ``
-// - Bullet lists (like this one)
-// - `> blockquotes`
-// - Fenced code blocks (for non-executable examples)
-
-// Keep each paragraph as a consecutive run of `// ` lines.
-
-// A blank line between comment blocks starts a new Markdown paragraph.
-
-// # User interface
-
-// ## Slide Mode
+// # Slide Mode
 
 // Click the **Slide Mode** button in the toolbar to present your chapter as
 // a slide deck. Each section becomes one slide.
@@ -142,6 +152,12 @@ IO.println("You can run code on slides too!");
 // and opens the browser print dialog. This is ideal for creating PDF handouts
 // from your chapter.
 
+// ## Reload
+
+// The **Reload** button reloads the chapter from disk. Browser edits are not
+// written back to the `.jsh` file, so use Reload when you want to discard those
+// temporary edits or reload the file if it has been modified on disk.
+
 // # Tips for writing good .jsh notebooks
 
 // **Keep sections focused.** Each section (slide) should cover one concept.
@@ -151,15 +167,20 @@ IO.println("You can run code on slides too!");
 // so define things before you use them.
 
 // **Preview classes and Java features.** The JShell runner starts with
-// `--enable-preview` and uses the current JDK version, so you can use the
-// latest Java preview features (e.g., value classes, pattern matching)
-// if your JDK supports them.
+// `--enable-preview` and uses the current JDK feature version, so you can use
+// Java preview features supported by your JDK.
 
 // **File naming.** Chapter names in the UI come directly from the `.jsh`
-// file name (without the extension). Use descriptive names like
-// `01-introduction.jsh`, `02-generics.jsh`, etc. to keep them ordered.
+// file name (without the extension) and are sorted alphabetically.
 
-// # Now, it's your turn!'
+// # Security model
+
+// JVisualBook assumes a trusted local user.
+// Submitted snippets are real Java code evaluated by JShell.
+// They may run indefinitely, consume CPU and memory, and access files,
+// environment variables, or network resources available to the Java process.
+
+// # Now, it's your turn!
 
 IO.println("""
   Create your own .jsh notebook.
