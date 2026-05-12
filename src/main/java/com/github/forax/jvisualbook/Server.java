@@ -1,29 +1,50 @@
 package com.github.forax.jvisualbook;
 
+import io.helidon.http.HeaderNames;
 import io.helidon.http.Status;
 import io.helidon.http.media.MediaContext;
 import io.helidon.http.media.jackson.JacksonSupport;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public final class Server {
   private record Chapter(String name) {}
+
+  private static final Map<String, String> MEDIA_TYPES = Map.of(
+      "png",  "image/png",
+      "jpg",  "image/jpeg",
+      "jpeg", "image/jpeg",
+      "gif",  "image/gif"
+  );
 
   private static String removeExtension(String filename) {
     return filename.substring(0, filename.lastIndexOf('.'));
   }
 
+  private static String extractExtension(String filename) {
+    var dot = filename.lastIndexOf('.');
+    return dot == -1 ? "" : filename.substring(dot + 1).toLowerCase();
+  }
+
+  private static Path validatePath(Path root, String filename) throws IOException {
+    // Resolve against root and verify it stays inside it (no symlink escape)
+    var base = root.toRealPath();
+    var target = base.resolve(filename).normalize();
+    if (!target.startsWith(base)) {
+      throw new IOException("invalid path: " + target);
+    }
+    return target;
+  }
+
   private static List<Chapter> allChapters() throws IOException {
-    try(var files = Files.list(Path.of("."))) {
+    try (var files = Files.list(Path.of("."))) {
       return files
           .map(f -> f.getFileName().toString())
           .filter(n -> n.endsWith(".jsh"))
@@ -34,8 +55,7 @@ public final class Server {
     }
   }
 
-  private static Model.Document chapterDocument(String name) throws IOException {
-    var path = Path.of(".", name + ".jsh");
+  private static Model.Document chapterDocument(Path path) throws IOException {
     return DocumentParser.parse(path);
   }
 
@@ -43,11 +63,7 @@ public final class Server {
     return JShellRunner.evaluate(code);
   }
 
-  private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+");
-
   static void main() {
-    // Helidon do not want to allow all classes to be serialized but jshell requires that
-    // -Djdk.serialFilter=* -Dhelidon.serialFilter.failure.action=warn
     ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
     System.setProperty("helidon.serialFilter.failure.action", "warn");
 
@@ -73,12 +89,15 @@ public final class Server {
             })
             .get("/api/chapter/{id}", (req, res) -> {
               var id = req.path().pathParameters().get("id");
-              if (!ID_PATTERN.matcher(id).matches()) {
-                res.status(Status.BAD_REQUEST_400).send(Map.of("id", id));
+              Path target;
+              try {
+                target = validatePath(Path.of("."), id + ".jsh");
+              } catch (IOException e) {
+                res.status(Status.FORBIDDEN_403).send();
                 return;
               }
               try {
-                res.send(chapterDocument(id));
+                res.send(chapterDocument(target));
               } catch (IOException e) {
                 res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
               }
@@ -87,6 +106,25 @@ public final class Server {
               var code = req.content().as(Model.Code.class);
               var execution = executeCode(code);
               res.send(execution);
+            })
+            .get("/images/{filename}", (req, res) -> {
+              var filename = req.path().pathParameters().get("filename");
+              var ext = extractExtension(filename);
+              var media = MEDIA_TYPES.get(ext);
+              if (media == null) {
+                res.status(Status.BAD_REQUEST_400).send(Map.of("extension", ext));
+                return;
+              }
+              Path target;
+              try {
+                target = validatePath(Path.of("images"), filename);
+              } catch (IOException e) {
+                res.status(Status.FORBIDDEN_403).send();
+                return;
+              }
+              var bytes = Files.readAllBytes(target);
+              res.headers().set(HeaderNames.CONTENT_TYPE, media);
+              res.send(bytes);
             })
         )
         .build()
