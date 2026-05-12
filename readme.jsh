@@ -16,8 +16,8 @@
 // bottom in one JShell session and shows each block's output inline below it.
 
 // You can **edit any code block** directly in the browser. After a short pause,
-// the notebook is evaluated again from the beginning, so later blocks see the
-// declarations created by earlier blocks in the edited version.
+// the notebook is evaluated again from the beginning,
+// so later blocks see the declarations created by earlier blocks.
 
 // ## Requirements
 
@@ -32,9 +32,10 @@
 // ```
 // Then open your browser at: `http://localhost:8080`
 
-// The server listens on `localhost:8080`, scans the **current working directory**
-// for `.jsh` files, and lists them as chapters in alphabetical order in the top
+// The server scans the **current working directory** for `.jsh` files,
+// and lists them as chapters in alphabetical order in the top
 // navigation menu.
+
 // Chapter names come from the file names without the `.jsh` extension.
 // Use descriptive names like `01-introduction.jsh`, `02-generics.jsh`, etc.
 // to keep them ordered.
@@ -65,22 +66,20 @@ IO.println("Hello from JVisualBook!");
 
 // # Text formatting with Markdown
 
-// Text lines (`// `) are rendered as **Markdown**, so you can use:
+// Sections and Texts are rendered as **Markdown**, so you can use:
 // - `*italic*` and `**bold**`
 // - `` `inline code` ``
 // - Bullet lists (like this one)
 // - `> blockquotes`
 // - Fenced code blocks (for non-executable examples)
 
-// Keep each paragraph as a consecutive run of `// ` lines.
-
 // A blank line between comment blocks starts a new Markdown paragraph.
 
 // ## State is shared across blocks
 
-// Within a chapter (a .jsh file), the JShell session is **shared**: imports, classes,
-// records, methods, and variables declared in one code block are visible in all
-// subsequent blocks. This lets you build up a story step by step.
+// A book chapter (a .jsh file) uses **one JShell session**:
+// imports, classes, records, methods, and variables declared in one code block
+// are visible in all subsequent blocks. This lets you build up a story step by step.
 
 import module java.base;
 
@@ -146,13 +145,11 @@ int broken = ;
 
 IO.println("You can run code on slides too!");
 
-// ## Print Slides
+// ## Print Slides and Reload
 
 // The **Print Slides** button renders every section as an A4-landscape page
 // and opens the browser print dialog. This is ideal for creating PDF handouts
 // from your chapter.
-
-// ## Reload
 
 // The **Reload** button reloads the chapter from disk. Browser edits are not
 // written back to the `.jsh` file, so use Reload when you want to discard those
@@ -175,7 +172,7 @@ IO.println("You can run code on slides too!");
 
 // # Security model
 
-// JVisualBook assumes a trusted local user.
+// JVisualBook assumes a **trusted local user**.
 // Submitted snippets are real Java code evaluated by JShell.
 // They may run indefinitely, consume CPU and memory, and access files,
 // environment variables, or network resources available to the Java process.
