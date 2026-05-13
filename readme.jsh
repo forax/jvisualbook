@@ -69,9 +69,11 @@ IO.println("Hello from JVisualBook!");
 // Sections and Texts are rendered as **Markdown**, so you can use:
 // - `*italic*` and `**bold**`
 // - `` `inline code` ``
-// - Bullet lists (like this one)
+// - bullet lists (like this one)
 // - `> blockquotes`
-// - Fenced code blocks (for non-executable examples)
+// - links (`[text](url)`)
+// - images (`![alt text](images/foo.png)`) (only from the local folder `images`)
+// - fenced code blocks (for non-executable examples)
 
 // A blank line between comment blocks starts a new Markdown paragraph.
 
