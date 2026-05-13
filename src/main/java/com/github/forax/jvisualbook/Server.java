@@ -122,7 +122,13 @@ public final class Server {
                 res.status(Status.FORBIDDEN_403).send();
                 return;
               }
-              var bytes = Files.readAllBytes(target);
+              byte[] bytes;
+              try {
+                bytes = Files.readAllBytes(target);
+              } catch (IOException e) {
+                res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+                return;
+              }
               res.headers().set(HeaderNames.CONTENT_TYPE, media);
               res.send(bytes);
             })
