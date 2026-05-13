@@ -36,7 +36,7 @@ public final class Server {
   private static Path validatePath(Path root, String filename) throws IOException {
     // Resolve against root and verify it stays inside it (no symlink escape)
     var base = root.toRealPath();
-    var target = base.resolve(filename).normalize();
+    var target = base.resolve(filename).normalize().toRealPath();
     if (!target.startsWith(base)) {
       throw new IOException("invalid path: " + target);
     }
@@ -87,11 +87,11 @@ public final class Server {
                 res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
               }
             })
-            .get("/api/chapter/{id}", (req, res) -> {
-              var id = req.path().pathParameters().get("id");
+            .get("/api/chapter/{filename}", (req, res) -> {
+              var filename = req.path().pathParameters().get("filename");
               Path target;
               try {
-                target = validatePath(Path.of("."), id + ".jsh");
+                target = validatePath(Path.of("."), filename + ".jsh");
               } catch (IOException e) {
                 res.status(Status.FORBIDDEN_403).send();
                 return;
