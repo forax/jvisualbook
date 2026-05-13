@@ -1,4 +1,5 @@
-# JVisualBook
+![JVisualBook Logo](images/jvisualbook-small.png)
+
 JVisualBook is a local, browser-based notebook for JShell files (Java interactive REPL files).
 
 It lets you open a `.jsh` chapter that mixes Markdown-style explanations with executable Java snippets.

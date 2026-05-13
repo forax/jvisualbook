@@ -6,6 +6,10 @@
 //     java -jar jvisualbook-*.jar
 // Then open your browser at: http://localhost:8080
 
+// #
+
+// ![JVisualBook logo](images/jvisualbook.png)
+
 // # What is JVisualBook?
 
 // JVisualBook turns `.jsh` files into **live, executable notebooks** displayed
