@@ -107,31 +107,18 @@ public final class DocumentParser {
           insideSection = true;
           yield LineKind.BLANK;
         }
-        case TEXT -> {
+        case TEXT, CODE -> {
           if (!insideSection) {
             handler.start(LineKind.SECTION);
             handler.line(LineKind.SECTION, "");
             insideSection = true;
           }
-          if (inside == LineKind.CODE) {
-            handler.end(LineKind.CODE);
+          var opposite = kind == LineKind.CODE ? LineKind.TEXT : LineKind.CODE;
+          if (inside == opposite) {
+            handler.end(opposite);
           }
-          if (inside != LineKind.TEXT) {
-            handler.start(LineKind.TEXT);
-          }
-          yield kind;
-        }
-        case CODE -> {
-          if (!insideSection) {
-            handler.start(LineKind.SECTION);
-            handler.line(LineKind.SECTION, "");
-            insideSection = true;
-          }
-          if (inside == LineKind.TEXT) {
-            handler.end(LineKind.TEXT);
-          }
-          if (inside != LineKind.CODE) {
-            handler.start(LineKind.CODE);
+          if (inside != kind) {
+            handler.start(kind);
           }
           yield kind;
         }
