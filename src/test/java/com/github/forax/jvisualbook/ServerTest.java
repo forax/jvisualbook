@@ -2,7 +2,6 @@ package com.github.forax.jvisualbook;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.helidon.common.media.type.MediaTypes;
 import io.helidon.http.Status;
 import io.helidon.webclient.http1.Http1Client;
 import io.helidon.webserver.http.HttpRouting;
@@ -11,6 +10,8 @@ import io.helidon.webserver.testing.junit5.SetUpRoute;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +59,7 @@ public class ServerTest {
       List<Chapter> chapters = MAPPER.readValue(response.entity().as(String.class),
           MAPPER.getTypeFactory().constructCollectionType(List.class, Chapter.class));
       for (var chapter : chapters) {
-        assertNotNull(chapter.name(), "Each chapter must have a non-null 'name'");
+        assertNotNull(chapter.name());
       }
     }
   }
@@ -114,6 +115,19 @@ public class ServerTest {
   public void testImageNotFound() {
     try (var response = client.get("/images/nonexistent.png").request()) {
       assertEquals(Status.NOT_FOUND_404, response.status());
+    }
+  }
+
+  @Test
+  public void testImageFound() throws IOException {
+    try (var response = client.get("/images/jvisualbook.png").request()) {
+      assertEquals(Status.OK_200, response.status());
+      assertEquals("image/png", response.headers().contentType()
+          .map(mt -> mt.mediaType().text())
+          .orElse(""));
+      var bytes = response.entity().as(byte[].class);
+      var expected = Files.readAllBytes(Paths.get("./images/jvisualbook.png"));
+      assertArrayEquals(expected, bytes);
     }
   }
 }
