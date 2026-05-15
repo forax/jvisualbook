@@ -53,14 +53,19 @@ function MonacoEditorWrapper({ code, onChange }) {
       setEditorHeight(`${next}px`);
     };
 
-    const onMouseUp = () => {
-      isDragging.current = false;
+    const cleanup = () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
 
+    const onMouseUp = () => {
+      isDragging.current = false;
+      cleanup()
+    };
+
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+    return () => cleanup();
   }, []);
 
   return (
