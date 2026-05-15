@@ -65,8 +65,8 @@ function DocumentViewer({ chapterName }) {
 
   useEffect(() => {
     if (!loadedDocument) return;
-    const timer = setTimeout(() => {
-      runCode(loadedDocument);
+    const timer = setTimeout(async () => {
+      await runCode(loadedDocument);
     }, 500);
     return () => clearTimeout(timer);
   }, [loadedDocument]);
@@ -172,7 +172,6 @@ function DocumentViewer({ chapterName }) {
     return (
       <SlideViewer
         doc={docToRender}
-        chapterName={chapterName}
         onExit={() => setSlideMode(false)}
         renderContent={renderContent}
       />
