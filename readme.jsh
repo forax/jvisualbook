@@ -181,6 +181,7 @@ IO.println("You can run code on slides too!");
 // JVisualBook assumes a **trusted local user**.
 
 // Submitted snippets are real Java code evaluated by JShell.
+
 // They may run indefinitely, consume CPU and memory, and access files,
 // environment variables, or network resources available to the Java process.
 
