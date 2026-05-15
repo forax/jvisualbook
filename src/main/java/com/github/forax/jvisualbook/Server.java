@@ -5,6 +5,7 @@ import io.helidon.http.Status;
 import io.helidon.http.media.MediaContext;
 import io.helidon.http.media.jackson.JacksonSupport;
 import io.helidon.webserver.WebServer;
+import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 
 import java.io.IOException;
@@ -34,9 +35,8 @@ public final class Server {
   }
 
   private static Path validatePath(Path root, String filename) throws IOException {
-    // Resolve against root and verify it stays inside it (no symlink escape)
-    var base = root.toRealPath();
-    var target = base.resolve(filename).normalize().toRealPath();
+    var base = root.normalize().toAbsolutePath();
+    var target = base.resolve(filename).normalize().toAbsolutePath();
     if (!target.startsWith(base)) {
       throw new IOException("invalid path: " + target);
     }
@@ -63,6 +63,62 @@ public final class Server {
     return JShellRunner.evaluate(code);
   }
 
+  static void routing(HttpRouting.Builder routing) {
+    routing
+        .get("/api/chapter", (_, res) -> {
+          try {
+            res.send(allChapters());
+          } catch (IOException e) {
+            res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+         }
+        })
+        .get("/api/chapter/{filename}", (req, res) -> {
+          var filename = req.path().pathParameters().get("filename");
+          Path target;
+          try {
+            target = validatePath(Path.of("."), filename + ".jsh");
+          } catch (IOException e) {
+            res.status(Status.FORBIDDEN_403).send();
+            return;
+          }
+          try {
+            res.send(chapterDocument(target));
+          } catch (IOException e) {
+            res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+          }
+        })
+        .post("/api/code", (req, res) -> {
+          var code = req.content().as(Model.Code.class);
+          var execution = executeCode(code);
+          res.send(execution);
+        })
+        .get("/images/{filename}", (req, res) -> {
+          var filename = req.path().pathParameters().get("filename");
+          var ext = extractExtension(filename);
+          var media = MEDIA_TYPES.get(ext);
+          if (media == null) {
+            res.status(Status.BAD_REQUEST_400).send(Map.of("extension", ext));
+            return;
+          }
+          Path target;
+          try {
+            target = validatePath(Path.of("images"), filename);
+          } catch (IOException e) {
+            res.status(Status.FORBIDDEN_403).send();
+            return;
+          }
+          byte[] bytes;
+          try {
+            bytes = Files.readAllBytes(target);
+          } catch (IOException e) {
+            res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+            return;
+          }
+          res.headers().set(HeaderNames.CONTENT_TYPE, media);
+          res.send(bytes);
+        });
+  }
+
   static void main() {
     ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
     System.setProperty("helidon.serialFilter.failure.action", "warn");
@@ -79,60 +135,7 @@ public final class Server {
                 .context("/"))
             .build()
         )
-        .routing(it -> it
-            .get("/api/chapter", (_, res) -> {
-              try {
-                res.send(allChapters());
-              } catch (IOException e) {
-                res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
-              }
-            })
-            .get("/api/chapter/{filename}", (req, res) -> {
-              var filename = req.path().pathParameters().get("filename");
-              Path target;
-              try {
-                target = validatePath(Path.of("."), filename + ".jsh");
-              } catch (IOException e) {
-                res.status(Status.FORBIDDEN_403).send();
-                return;
-              }
-              try {
-                res.send(chapterDocument(target));
-              } catch (IOException e) {
-                res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
-              }
-            })
-            .post("/api/code", (req, res) -> {
-              var code = req.content().as(Model.Code.class);
-              var execution = executeCode(code);
-              res.send(execution);
-            })
-            .get("/images/{filename}", (req, res) -> {
-              var filename = req.path().pathParameters().get("filename");
-              var ext = extractExtension(filename);
-              var media = MEDIA_TYPES.get(ext);
-              if (media == null) {
-                res.status(Status.BAD_REQUEST_400).send(Map.of("extension", ext));
-                return;
-              }
-              Path target;
-              try {
-                target = validatePath(Path.of("images"), filename);
-              } catch (IOException e) {
-                res.status(Status.FORBIDDEN_403).send();
-                return;
-              }
-              byte[] bytes;
-              try {
-                bytes = Files.readAllBytes(target);
-              } catch (IOException e) {
-                res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
-                return;
-              }
-              res.headers().set(HeaderNames.CONTENT_TYPE, media);
-              res.send(bytes);
-            })
-        )
+        .routing(Server::routing)
         .build()
         .start();
   }
