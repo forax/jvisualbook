@@ -29,10 +29,10 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode verify
 
-      - name: Extract version from tag
+      - name: Extract version from Maven
         if: startsWith(github.ref, 'refs/tags/')
         id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
