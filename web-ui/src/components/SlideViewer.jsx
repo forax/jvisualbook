@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './SlideViewer.css';
 
-function SlideViewer({ doc, chapterName, onExit, renderContent }) {
+function SlideViewer({ doc, onExit, renderContent }) {
   const sections = doc?.sections ?? [];
   const [idx, setIdx] = useState(0);
 
