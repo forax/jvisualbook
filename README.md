@@ -39,6 +39,8 @@ Then open:
 http://localhost:8080
 ```
 
+If you run it on this folder, it will render the [readme.jsh](readme.jsh) chapter.
+
 ## Writing chapters
 
 JVisualBook discovers chapters by listing `.jsh` files in the directory where the server is started.
