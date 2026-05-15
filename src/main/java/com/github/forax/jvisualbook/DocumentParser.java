@@ -84,57 +84,60 @@ public final class DocumentParser {
 
     var inside = LineKind.BLANK;
     var insideSection = false;
-    for (var i = 0; i < lines.size(); i++) {
-      var line = lines.get(i);
+    for (var line : lines) {
       var kind = LineKind.kind(line);
 
       //System.out.println(kind + " " + line);
 
-      try {
-        inside = switch (kind) {
-          case BLANK -> {
-            if (inside == LineKind.CODE || inside == LineKind.TEXT) {
-              handler.end(inside);
-            }
-            yield kind;
+      inside = switch (kind) {
+        case BLANK -> {
+          if (inside == LineKind.CODE || inside == LineKind.TEXT) {
+            handler.end(inside);
           }
-          case SECTION -> {
-            if (inside == LineKind.CODE || inside == LineKind.TEXT) {
-              handler.end(inside);
-            }
-            if (insideSection) {
-              handler.end(LineKind.SECTION);
-            }
+          yield kind;
+        }
+        case SECTION -> {
+          if (inside == LineKind.CODE || inside == LineKind.TEXT) {
+            handler.end(inside);
+          }
+          if (insideSection) {
+            handler.end(LineKind.SECTION);
+          }
+          handler.start(LineKind.SECTION);
+          insideSection = true;
+          yield LineKind.BLANK;
+        }
+        case TEXT -> {
+          if (!insideSection) {
             handler.start(LineKind.SECTION);
+            handler.line(LineKind.SECTION, "");
             insideSection = true;
+          }
+          if (inside == LineKind.CODE) {
+            handler.end(LineKind.CODE);
+          }
+          if (inside != LineKind.TEXT) {
             handler.start(LineKind.TEXT);
-            yield LineKind.TEXT;
           }
-          case TEXT -> {
-            if (inside == LineKind.CODE) {
-              handler.end(LineKind.CODE);
-            }
-            if (inside != LineKind.TEXT) {
-              handler.start(LineKind.TEXT);
-            }
-            yield kind;
+          yield kind;
+        }
+        case CODE -> {
+          if (!insideSection) {
+            handler.start(LineKind.SECTION);
+            handler.line(LineKind.SECTION, "");
+            insideSection = true;
           }
-          case CODE -> {
-            if (inside == LineKind.TEXT) {
-              handler.end(LineKind.TEXT);
-            }
-            if (inside != LineKind.CODE) {
-              handler.start(LineKind.CODE);
-            }
-            yield kind;
+          if (inside == LineKind.TEXT) {
+            handler.end(LineKind.TEXT);
           }
-        };
+          if (inside != LineKind.CODE) {
+            handler.start(LineKind.CODE);
+          }
+          yield kind;
+        }
+      };
 
-        handler.line(kind, kind.clean(line));
-      } catch (RuntimeException e) {
-        e.addSuppressed(new IOException("at line " + (i + 1) + " " + line));
-        throw e;
-      }
+      handler.line(kind, kind.clean(line));
     }
 
     if (inside != LineKind.BLANK) {
