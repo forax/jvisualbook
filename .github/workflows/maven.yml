@@ -29,11 +29,6 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode verify
 
-      - name: Extract version from Maven
-        if: startsWith(github.ref, 'refs/tags/')
-        id: version
-        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
-
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
@@ -42,4 +37,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            target/jvisualbook-${{ steps.version.outputs.VERSION }}.jar
+            target/jvisualbook-*.jar
