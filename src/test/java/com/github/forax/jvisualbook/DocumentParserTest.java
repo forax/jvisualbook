@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DocumentParserTest {
 
   private static Document parseLines(String source) throws IOException {
-    var tmp = Files.createTempFile("test", ".java");
+    var tmp = Files.createTempFile("test", ".jsh");
     try {
       Files.writeString(tmp, source);
       return DocumentParser.parse(tmp);
@@ -26,7 +26,7 @@ public class DocumentParserTest {
 
 
   @Test
-  public void parsePathNullThrows(@TempDir Path dir) {
+  public void parsePathNullThrows() {
     assertThrows(NullPointerException.class, () -> DocumentParser.parse(null));
   }
 
@@ -41,7 +41,7 @@ public class DocumentParserTest {
 
   @Test
   public void parsePathStripsLeadingTextHeader(@TempDir Path dir) throws IOException {
-    var file = dir.resolve("header.java");
+    var file = dir.resolve("header.jsh");
     Files.writeString(file, """
         // This is a header comment
         // Another header line
