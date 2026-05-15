@@ -18,6 +18,8 @@ import java.util.Map;
 public final class Server {
   private record Chapter(String name) {}
 
+  private static final int TIMEOUT_SECONDS = 5;
+
   private static final Map<String, String> MEDIA_TYPES = Map.of(
       "png",  "image/png",
       "jpg",  "image/jpeg",
@@ -60,7 +62,7 @@ public final class Server {
   }
 
   private static Model.Execution executeCode(Model.Code code) {
-    return JShellRunner.evaluate(code);
+    return JShellRunner.evaluate(code, TIMEOUT_SECONDS);
   }
 
   static void routing(HttpRouting.Builder routing) {

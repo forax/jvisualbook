@@ -137,6 +137,18 @@ IO.println(String.join("\n", results));
 // The next line intentionally shows what an error looks like:
 int broken = ;
 
+// ## Execution timeout
+
+// Every chapter execution is limited to **5 seconds** in total.
+
+// This means infinite loops or long-running computations will be stopped.
+
+// The snippet below demonstrates what a timeout looks like.
+// Uncomment it, wait 5 seconds, then fix it by commenting the code again.
+
+//This snippet will time out on purpose
+//while (true) {}
+
 // # Slide Mode
 
 // Click the **Slide Mode** button in the toolbar to present your chapter as
@@ -173,6 +185,9 @@ IO.println("You can run code on slides too!");
 // `--enable-preview` and uses the current JDK feature version, so you can use
 // Java preview features supported by your JDK.
 
+// **5 seconds timeout**. Keep your snippets short and focused on illustrating
+// a concept rather than running heavy computations.
+
 // **File naming.** Chapter names in the UI come directly from the `.jsh`
 // file name (without the extension) and are sorted alphabetically.
 
@@ -182,8 +197,9 @@ IO.println("You can run code on slides too!");
 
 // Submitted snippets are real Java code evaluated by JShell.
 
-// They may run indefinitely, consume CPU and memory, and access files,
-// environment variables, or network resources available to the Java process.
+// Snippets may consume CPU and memory, and access files,
+// environment variables, or network resources available to
+// the Java process.
 
 // # Now, it's your turn!
 

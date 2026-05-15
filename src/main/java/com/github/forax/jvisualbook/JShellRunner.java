@@ -7,34 +7,64 @@ import jdk.jshell.Snippet;
 import jdk.jshell.SnippetEvent;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public final class JShellRunner {
   private JShellRunner() {
     throw new AssertionError();
   }
 
-  public static Model.Execution evaluate(Model.Code code) {
+  public static Model.Execution evaluate(Model.Code code, int timeoutSeconds) {
     var output = new ByteArrayOutputStream();
     try (var shell = JShell.builder()
         .out(new PrintStream(output, true, StandardCharsets.UTF_8))
         .err(new PrintStream(output, true, StandardCharsets.UTF_8))
         .compilerOptions("--enable-preview", "--source=" + Runtime.version().feature())
         .remoteVMOptions("--enable-preview")
-        .build()) {
+        .build();
+         var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 
-      var evaluations = new ArrayList<Model.Evaluation>();
-      for (var snippet : code.snippets()) {
-        var evaluation = evaluateSnippet(shell, output, snippet);
-        evaluations.add(evaluation);
+      var future = executor.submit(() -> evaluateInShell(shell, output, code));
+      try {
+        return future.get(timeoutSeconds, TimeUnit.SECONDS);
+      } catch (TimeoutException e) {
+        shell.stop();
+        var timeoutEval = new Model.Evaluation(
+            Model.Evaluation.Status.ERROR,
+            "Error: execution timed out after " + timeoutSeconds + " seconds");
+        return new Model.Execution(Collections.nCopies(code.snippets().size(), timeoutEval));
+      } catch (InterruptedException e) {
+        shell.stop();
+        throw new UncheckedIOException("Evaluation interrupted", new IOException(e));
+      } catch (ExecutionException e) {
+        switch (e.getCause()) {
+          case RuntimeException runtimeException -> throw runtimeException;
+          case Error error -> throw error;
+          case Throwable throwable -> throw new UndeclaredThrowableException(throwable);
+        }
       }
-
-      return new Model.Execution(evaluations);
     }
+  }
+
+  private static Model.Execution evaluateInShell(JShell shell, ByteArrayOutputStream output, Model.Code code) {
+    var evaluations = new ArrayList<Model.Evaluation>();
+    for (var snippet : code.snippets()) {
+      var evaluation = evaluateSnippet(shell, output, snippet);
+      evaluations.add(evaluation);
+    }
+    return new Model.Execution(evaluations);
   }
 
   private static Model.Evaluation evaluateSnippet(JShell shell, ByteArrayOutputStream output, Model.Snippet snippet) {
@@ -42,7 +72,6 @@ public final class JShellRunner {
     var analysis = shell.sourceCodeAnalysis();
 
     while (!source.isEmpty()) {
-      // Split off the next complete snippet from the source
       var info = analysis.analyzeCompletion(source);
       var unit = info.source();
       var remaining = info.remaining();
@@ -61,14 +90,13 @@ public final class JShellRunner {
 
       var joiner = new StringJoiner("\n");
       for (var event : events) {
-        //System.err.println("DEBUG " + unit + " " + event);
         switch (event.exception()) {
           case null -> {}
           case EvalException evalException -> {
             output.reset();
             return new Model.Evaluation(Model.Evaluation.Status.ERROR, evalException.getExceptionClassName() + ": " + evalException.getMessage());
           }
-          case JShellException shellException ->  {
+          case JShellException shellException -> {
             output.reset();
             return new Model.Evaluation(Model.Evaluation.Status.ERROR, shellException.getClass().getName() + ": " + shellException.getMessage());
           }

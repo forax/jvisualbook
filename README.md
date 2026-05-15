@@ -1,5 +1,4 @@
-![JVisualBook Logo](images/jvisualbook-small.png)
-
+# JVisualBook
 JVisualBook is a local, browser-based notebook for JShell files (Java interactive REPL files).
 
 It lets you open a `.jsh` chapter that mixes Markdown-style explanations with executable Java snippets.
@@ -25,8 +24,8 @@ JShell evaluation enables preview features using the current runtime feature ver
 
 ## Quick start
 
-Build the jar first (see [Build](#build)), 
-or use a [prebuild release](https://github.com/forax/jvisualbook/releases/latest) from Github, 
+Build the jar first (see [Build](#build)),
+or use a [prebuild release](https://github.com/forax/jvisualbook/releases/latest) from Github,
 then run it from the folder containing your `.jsh` files:
 
 ```bash
@@ -38,8 +37,6 @@ Then open:
 ```text
 http://localhost:8080
 ```
-
-If you run it on this folder, it will render the [readme.jsh](readme.jsh) chapter.
 
 ## Writing chapters
 
@@ -93,6 +90,18 @@ Output and errors are displayed inline below each code block. Errors are highlig
 When the document runs, JVisualBook executes all code blocks in order using one JShell session,
 so later code can use imports, classes, records, methods and variables declared earlier.
 
+### Execution timeout
+
+The entire chapter execution is limited to **5 seconds**. If execution has not completed within
+that time, JShell is forcibly stopped and every snippet is marked as an error:
+
+```
+Error: execution timed out after 5 seconds
+```
+
+This means infinite loops or long-running computations will be interrupted. Keep snippets
+short and side-effect-free — they are meant to illustrate concepts, not run benchmarks.
+
 ### Example chapter
 
 ```java
@@ -118,18 +127,6 @@ Any edit in any code block triggers re-evaluation of the whole chapter after 500
 JVisualBook assumes a trusted local user:
 
 - Submitted snippets are real Java code evaluated by JShell.
-- Snippets can run indefinitely unless the JVM process is stopped.
-- Snippets can consume arbitrary CPU and memory.
+- Snippets can consume arbitrary CPU and memory up to the 5-second execution timeout.
 - Snippets may access files, environment variables, and network resources available to the Java process.
 - The app must not be deployed as a shared or public-facing service.
-
-## Build
-
-Requires Maven 3.9+ and JDK 25+. Node.js does not need to be installed globally,
-the build downloads a local copy of Node and npm automatically.
-
-```bash
-mvn package
-```
-
-The resulting jar is `target/jvisualbook-*.jar`.
