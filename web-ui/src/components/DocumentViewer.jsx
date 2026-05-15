@@ -187,7 +187,7 @@ function DocumentViewer({ chapterName }) {
           <button className="toggle-code-btn" onClick={() => setSlideMode(true)}>
             Slide Mode
           </button>
-          <button className="toggle-code-btn" onClick={() => printSlidesAsPDF(docToRender, chapterName)}>
+          <button className="toggle-code-btn" onClick={() => printSlidesAsPDF(docToRender)}>
             Print Slides
           </button>
           <button className="toggle-code-btn" onClick={loadDocument}>

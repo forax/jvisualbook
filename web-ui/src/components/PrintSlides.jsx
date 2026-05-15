@@ -7,7 +7,7 @@ import './PrintSlides.css';
  * Renders a hidden DOM tree with one .print-slide per section,
  * then triggers window.print(). Cleaned up after printing.
  */
-export function printSlidesAsPDF(doc, chapterName) {
+export function printSlidesAsPDF(doc) {
   // Create (or reuse) a container outside the React root
   let container = document.getElementById('print-slides-root');
   if (!container) {
@@ -18,13 +18,13 @@ export function printSlidesAsPDF(doc, chapterName) {
   }
 
   const root = ReactDOM.createRoot(container);
-  root.render(<PrintSlides doc={doc} chapterName={chapterName} onReady={() => {
+  root.render(<PrintSlides doc={doc} onReady={() => {
     window.onafterprint = () => { root.unmount(); container.remove(); };
     window.print();
   }} />);
 }
 
-function PrintSlides({ doc, chapterName, onReady }) {
+function PrintSlides({ doc, onReady }) {
   const triggered = useRef(false);
 
   useEffect(() => {
