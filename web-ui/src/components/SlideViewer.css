@@ -20,10 +20,6 @@
     transition: width 0.3s ease;
 }
 
-.slide-chapter {
-    font-size: 0.9rem;
-}
-
 /* ── Stage: nav buttons + card ── */
 .slide-stage {
     flex: 1;
