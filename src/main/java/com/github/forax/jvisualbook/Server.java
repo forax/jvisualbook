@@ -122,7 +122,9 @@ public final class Server {
   }
 
   static WebServer start(int port) {
-    ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
+    if (ObjectInputFilter.Config.getSerialFilter() == null) {
+      ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
+    }
     System.setProperty("helidon.serialFilter.failure.action", "ignore");
 
     return WebServer.builder()
