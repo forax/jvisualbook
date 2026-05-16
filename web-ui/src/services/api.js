@@ -7,7 +7,7 @@ export async function fetchChapters() {
     }
   });
   if (!response.ok) {
-    throw Error(`Failed to fetch chapters: ${response.statusText}`);
+    throw Error(`Failed to fetch chapters, status: ${response.status}`);
   }
   return await response.json();
 }
@@ -19,7 +19,7 @@ export async function fetchChapterDocument(chapterName) {
     }
   });
   if (!response.ok) {
-    throw Error(`Failed to fetch document for chapter: ${chapterName}`);
+    throw Error(`Failed to fetch document for chapter: ${chapterName} status: ${response.status}`);
   }
   return await response.json();
 }
@@ -35,7 +35,7 @@ export async function postCode(code, signal) {
     signal
   });
   if (!response.ok) {
-    throw Error(`Failed to post code : ${JSON.stringify(code)}`);
+    throw Error(`Failed to post code, status: ${response.status}`);
   }
   return await response.json();
 }
