@@ -94,6 +94,7 @@ public final class OtherEndpointTest {
   @Test
   public void getChaptersItemsAllHaveNameField() throws IOException {
     var response = get("/api/chapter");
+    assertEquals(200, response.statusCode());
     var chapters = MAPPER.readValue(response.body(),
         new TypeReference<List<Chapter>>() {});
     for (var chapter : chapters) {
@@ -105,6 +106,7 @@ public final class OtherEndpointTest {
   @Test
   public void getChaptersNamesHaveNoJshExtension() throws IOException {
     var response = get("/api/chapter");
+    assertEquals(200, response.statusCode());
     var chapters = MAPPER.readValue(response.body(),
         new TypeReference<List<Chapter>>() {});
     for (var chapter : chapters) {
@@ -116,6 +118,7 @@ public final class OtherEndpointTest {
   @Test
   public void getChaptersAreSortedAlphabetically() throws IOException {
     var response = get("/api/chapter");
+    assertEquals(200, response.statusCode());
     var chapters = MAPPER.readValue(response.body(),
         new TypeReference<List<Chapter>>() {});
     var names = chapters.stream().map(Chapter::name).toList();
@@ -151,6 +154,7 @@ public final class OtherEndpointTest {
   @Test
   public void getKnownChapterReturns200() throws IOException {
     var chaptersResponse = get("/api/chapter");
+    assertEquals(200, chaptersResponse.statusCode());
     var chapters = MAPPER.readValue(chaptersResponse.body(),
         new TypeReference<List<Chapter>>() {});
     assertFalse(chapters.isEmpty(), "jvisualbook folder should contain at least one chapter");
@@ -162,6 +166,7 @@ public final class OtherEndpointTest {
   @Test
   public void getKnownChapterReturnsSections() throws IOException {
     var chaptersResponse = get("/api/chapter");
+    assertEquals(200, chaptersResponse.statusCode());
     var chapters = MAPPER.readValue(chaptersResponse.body(),
         new TypeReference<List<Chapter>>() {});
     assertFalse(chapters.isEmpty(), "jvisualbook folder should contain at least one chapter");
