@@ -25,7 +25,7 @@
 
 // ## Requirements
 
-// JVisualBook requires **Java 25 or newer**.
+// JVisualBook requires **Java 25 or newer** and a **browser from 2023+**.
 
 // ## How to start the server
 
