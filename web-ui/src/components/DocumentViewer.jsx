@@ -41,7 +41,7 @@ function mergeDocument(doc, execution) {
           newContents.push({
             kind: "OUTPUT",
             text: evaluation.text,
-            id: crypto.randomUUID(),
+            id: content.id + "-output",
             status: evaluation.status,
           });
         }
