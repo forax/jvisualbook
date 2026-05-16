@@ -64,6 +64,7 @@ public final class JShellRunner {
     for (var snippet : code.snippets()) {
       var evaluation = evaluateSnippet(shell, output, snippet);
       evaluations.add(evaluation);
+      output.reset();
     }
     return new Model.Execution(evaluations);
   }
@@ -85,7 +86,6 @@ public final class JShellRunner {
       try {
         events = shell.eval(unit);
       } catch (RuntimeException e) {
-        output.reset();
         return new Model.Evaluation(Model.Evaluation.Status.ERROR, e.getClass().getName() + ": " + e.getMessage());
       }
 
@@ -94,11 +94,9 @@ public final class JShellRunner {
         switch (event.exception()) {
           case null -> {}
           case EvalException evalException -> {
-            output.reset();
             return new Model.Evaluation(Model.Evaluation.Status.ERROR, evalException.getExceptionClassName() + ": " + evalException.getMessage());
           }
           case JShellException shellException -> {
-            output.reset();
             return new Model.Evaluation(Model.Evaluation.Status.ERROR, shellException.getClass().getName() + ": " + shellException.getMessage());
           }
         }
@@ -113,7 +111,6 @@ public final class JShellRunner {
       var rejected = joiner.toString();
 
       if (!rejected.isEmpty()) {
-        output.reset();
         return new Model.Evaluation(Model.Evaluation.Status.ERROR, rejected);
       }
 
@@ -121,7 +118,6 @@ public final class JShellRunner {
     }
 
     var text = output.toString(StandardCharsets.UTF_8);
-    output.reset();
     return new Model.Evaluation(Model.Evaluation.Status.SUCCESS, text);
   }
 }
