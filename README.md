@@ -22,6 +22,8 @@ View it as a document or slide deck, edit snippets in the browser, and auto-run 
 **JDK 25 or newer with JShell support.**
 JShell evaluation enables preview features using the current runtime feature version.
 
+A modern **browser from 2023+** to run the web UI.
+
 ## Quick start
 
 Build the jar first (see [Build](#build)),
