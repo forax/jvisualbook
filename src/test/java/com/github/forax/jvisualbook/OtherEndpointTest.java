@@ -153,9 +153,7 @@ public final class OtherEndpointTest {
     var chaptersResponse = get("/api/chapter");
     var chapters = MAPPER.readValue(chaptersResponse.body(),
         new TypeReference<List<Chapter>>() {});
-    if (chapters.isEmpty()) {
-      return;
-    }
+    assertFalse(chapters.isEmpty(), "jvisualbook folder should contain at least one chapter");
     var first = chapters.getFirst();
     var response = get("/api/chapter/" + first.name());
     assertEquals(200, response.statusCode());
@@ -166,9 +164,7 @@ public final class OtherEndpointTest {
     var chaptersResponse = get("/api/chapter");
     var chapters = MAPPER.readValue(chaptersResponse.body(),
         new TypeReference<List<Chapter>>() {});
-    if (chapters.isEmpty()) {
-      return;
-    }
+    assertFalse(chapters.isEmpty(), "jvisualbook folder should contain at least one chapter");
     var first = chapters.getFirst();
     var response = get("/api/chapter/" + first.name());
     assertEquals(200, response.statusCode());
