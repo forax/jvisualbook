@@ -13,8 +13,10 @@
 // # What is JVisualBook?
 
 // JVisualBook turns `.jsh` files into **live, executable notebooks** displayed
-// in your browser. Each file is a chapter made of sections. Every section can
-// contain explanatory text (written as comments) and executable Java code.
+// in your browser.
+
+// Each file is a chapter made of sections. Every section can contain
+// explanatory text (written as comments) and executable Java code.
 
 // When you open a chapter, JVisualBook evaluates all code blocks from top to
 // bottom in one JShell session and shows each block's output inline below it.
