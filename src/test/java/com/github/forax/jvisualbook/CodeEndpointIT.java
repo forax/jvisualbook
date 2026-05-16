@@ -24,7 +24,7 @@ public final class CodeEndpointIT {
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
   private static final HttpClient HTTP = HttpClient.newHttpClient();
-  private static final String BASE_URL = "http://localhost:8080";
+  private static final String BASE_URL = "http://localhost:8083";
 
   record Evaluation(String status, String text) {}
   record Execution(List<Evaluation> evaluations) {}
@@ -33,7 +33,7 @@ public final class CodeEndpointIT {
 
   @BeforeAll
   public static void startServer() {
-    server = Server.start();
+    server = Server.start(8083);
   }
 
   @AfterAll

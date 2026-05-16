@@ -121,12 +121,12 @@ public final class Server {
         });
   }
 
-  static WebServer start() {
+  static WebServer start(int port) {
     ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
     System.setProperty("helidon.serialFilter.failure.action", "ignore");
 
     return WebServer.builder()
-        .port(8080)
+        .port(port)
         .host("localhost")
         .mediaContext(MediaContext.builder()
             .addMediaSupport(JacksonSupport.create())
@@ -143,6 +143,6 @@ public final class Server {
   }
 
   static void main() {
-    start();
+    start(8080);
   }
 }

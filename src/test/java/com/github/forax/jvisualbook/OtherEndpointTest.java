@@ -26,7 +26,7 @@ public final class OtherEndpointTest {
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
   private static final HttpClient HTTP = HttpClient.newHttpClient();
-  private static final String BASE_URL = "http://localhost:8080";
+  private static final String BASE_URL = "http://localhost:8084";
 
   record Chapter(String name) {}
   record Section(String title, List<?> contents) {}
@@ -38,7 +38,7 @@ public final class OtherEndpointTest {
 
   @BeforeAll
   static void startServer() {
-    server = Server.start();
+    server = Server.start(8084);
   }
 
   @AfterAll
