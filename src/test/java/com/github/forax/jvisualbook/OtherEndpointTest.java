@@ -32,7 +32,7 @@ public final class OtherEndpointTest {
   record Section(String title, List<?> contents) {}
   record Document(List<Section> sections) {}
   record ErrorBody(String message, String kind) {}
-  record ExtensionError(String extension) {}
+  record ExtensionError(String message) {}
 
   private static WebServer server;
 
@@ -188,10 +188,10 @@ public final class OtherEndpointTest {
 
   @Test
   public void getImageWithUnsupportedExtensionBodyHasExtensionField() throws IOException {
-    var response = get("/images/file.exe");
+    var response = get("/images/file2.exe");
     assertEquals(400, response.statusCode());
     var error = MAPPER.readValue(response.body(), ExtensionError.class);
-    assertEquals("exe", error.extension());
+    assertEquals("invalid extension", error.message());
   }
 
   @Test

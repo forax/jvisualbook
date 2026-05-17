@@ -20,14 +20,6 @@ public final class Server {
 
   private static final int TIMEOUT_SECONDS = 5;
 
-  private static final Map<String, String> MEDIA_TYPES = Map.of(
-      "png",  "image/png",
-      "jpg",  "image/jpeg",
-      "jpeg", "image/jpeg",
-      "gif",  "image/gif",
-      "svg",  "image/svg+xml"
-  );
-
   private static String removeExtension(String filename) {
     return filename.substring(0, filename.lastIndexOf('.'));
   }
@@ -97,12 +89,6 @@ public final class Server {
         })
         .get("/images/{filename}", (req, res) -> {
           var filename = req.path().pathParameters().get("filename");
-          var ext = extractExtension(filename);
-          var media = MEDIA_TYPES.get(ext);
-          if (media == null) {
-            res.status(Status.BAD_REQUEST_400).send(Map.of("extension", ext));
-            return;
-          }
           Path target;
           try {
             target = validatePath(Path.of("images"), filename);
@@ -110,14 +96,20 @@ public final class Server {
             res.status(Status.FORBIDDEN_403).send();
             return;
           }
+          String contentType;
           byte[] bytes;
           try {
+            contentType = Files.probeContentType(target);
+            if (contentType == null || !contentType.startsWith("image/")) {
+              res.status(Status.BAD_REQUEST_400).send(Map.of("message","invalid extension"));
+              return;
+            }
             bytes = Files.readAllBytes(target);
           } catch (IOException e) {
             res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
             return;
           }
-          res.headers().set(HeaderNames.CONTENT_TYPE, media);
+          res.headers().set(HeaderNames.CONTENT_TYPE, contentType);
           res.send(bytes);
         });
   }
