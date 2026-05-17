@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Objects;
 
 public interface Model {
+  record Chapter(String name) {
+    public Chapter {
+      Objects.requireNonNull(name);
+    }
+  }
   record Document(List<Section> sections) {
     public Document {
       sections = List.copyOf(sections);

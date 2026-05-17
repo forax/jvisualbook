@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class Server {
-  private record Chapter(String name) {}
-
   private static final int TIMEOUT_SECONDS = 5;
 
   private static final Map<String, String> MEDIA_TYPES = Map.of(
@@ -46,14 +44,14 @@ public final class Server {
     return target;
   }
 
-  private static List<Chapter> allChapters() throws IOException {
+  private static List<Model.Chapter> allChapters() throws IOException {
     try (var files = Files.list(Path.of("."))) {
       return files
           .map(f -> f.getFileName().toString())
           .filter(n -> n.endsWith(".jsh"))
           .map(Server::removeExtension)
           .sorted()
-          .map(Chapter::new)
+          .map(Model.Chapter::new)
           .toList();
     }
   }
