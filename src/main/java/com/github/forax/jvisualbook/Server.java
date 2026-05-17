@@ -24,7 +24,8 @@ public final class Server {
       "png",  "image/png",
       "jpg",  "image/jpeg",
       "jpeg", "image/jpeg",
-      "gif",  "image/gif"
+      "gif",  "image/gif",
+      "svg",  "image/svg+xml"
   );
 
   private static String removeExtension(String filename) {
