@@ -26,10 +26,6 @@ public final class Server {
       "svg",  "image/svg+xml"
   );
 
-  private static String removeExtension(String filename) {
-    return filename.substring(0, filename.lastIndexOf('.'));
-  }
-
   private static String extractExtension(String filename) {
     var dot = filename.lastIndexOf('.');
     return dot == -1 ? "" : filename.substring(dot + 1).toLowerCase();
@@ -47,9 +43,9 @@ public final class Server {
   private static List<Model.Chapter> allChapters() throws IOException {
     try (var files = Files.list(Path.of("."))) {
       return files
-          .map(f -> f.getFileName().toString())
-          .filter(n -> n.endsWith(".jsh"))
-          .map(Server::removeExtension)
+          .map(file -> file.getFileName().toString())
+          .filter(name -> name.endsWith(".jsh"))
+          .map(name -> name.substring(0, name.length() - ".jsh".length()))
           .sorted()
           .map(Model.Chapter::new)
           .toList();
