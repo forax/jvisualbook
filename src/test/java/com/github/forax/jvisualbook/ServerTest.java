@@ -104,11 +104,11 @@ public class ServerTest {
 
   @Test
   public void testImageBadExtensionBodyHasExtensionField() throws IOException {
-    record ErrorBody(String message) {}
+    record ErrorBody(String extension) {}
     try (var response = client.get("/images/file2.exe").request()) {
       assertEquals(Status.BAD_REQUEST_400, response.status());
       var error = MAPPER.readValue(response.entity().as(String.class), ErrorBody.class);
-      assertEquals("invalid extension", error.message());
+      assertEquals("exe", error.extension());
     }
   }
 
