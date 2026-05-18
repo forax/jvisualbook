@@ -138,15 +138,13 @@ public final class DocumentParser {
 
   public static Document parse(Path path) throws IOException {
     Objects.requireNonNull(path);
-
     List<String> lines;
     try(var stream = Files.lines(path)) {
-      // Remove the header (all texts before the blank lines)
+      // Remove the prologue (all texts before the blank lines)
       lines = stream.dropWhile(LineKind.is(LineKind.TEXT))
           .dropWhile(LineKind.is(LineKind.BLANK))
           .toList();
     }
-
     return parse(lines);
   }
 
