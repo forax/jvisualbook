@@ -73,7 +73,6 @@ Text lines begin with `// ` and are rendered as Markdown:
 
 ```java
 // This is **Markdown** prose.
-//
 // - Bullet one
 // - Bullet two
 ```
