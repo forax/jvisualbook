@@ -55,6 +55,7 @@ public interface Model {
     /// Create a new Section
     /// @throws NullPointerException if `title` or `contents` is `null`
     public Section {
+      Objects.requireNonNull(title);
       contents = List.copyOf(contents);
     }
   }
