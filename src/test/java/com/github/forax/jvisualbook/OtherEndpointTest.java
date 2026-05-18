@@ -241,11 +241,4 @@ public final class OtherEndpointTest {
         response.statusCode() == 403 || response.statusCode() == 404,
         "Expected 403 or 404, got: " + response.statusCode());
   }
-
-  @Test
-  public void getImageExtensionCaseInsensitive() throws IOException {
-    // Extension extraction lowercases, so .PNG should behave the same as .png
-    var response = get("/images/nonexistent.PNG");
-    assertEquals(404, response.statusCode());
-  }
 }

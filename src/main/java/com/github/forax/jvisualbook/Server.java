@@ -1,5 +1,6 @@
 package com.github.forax.jvisualbook;
 
+import io.helidon.common.media.type.MediaTypes;
 import io.helidon.http.HeaderNames;
 import io.helidon.http.Status;
 import io.helidon.http.media.MediaContext;
@@ -18,14 +19,6 @@ import java.util.Map;
 
 public final class Server {
   private static final int TIMEOUT_SECONDS = 5;
-
-  private static final Map<String, String> MEDIA_TYPES = Map.of(
-      "png",  "image/png",
-      "jpg",  "image/jpeg",
-      "jpeg", "image/jpeg",
-      "gif",  "image/gif",
-      "svg",  "image/svg+xml"
-  );
 
   private static String extractExtension(String filename) {
     var dot = filename.lastIndexOf('.');
@@ -92,10 +85,10 @@ public final class Server {
         })
         .get("/images/{filename}", (req, res) -> {
           var filename = req.path().pathParameters().get("filename");
-          var ext = extractExtension(filename);
-          var media = MEDIA_TYPES.get(ext);
-          if (media == null) {
-            res.status(Status.BAD_REQUEST_400).send(Map.of("extension", ext));
+          var mediaTypeOpt = MediaTypes.detectType(filename);
+          String media;
+          if (mediaTypeOpt.isEmpty() || !((media = mediaTypeOpt.orElseThrow().text()).startsWith("image/"))) {
+            res.status(Status.BAD_REQUEST_400).send(Map.of("extension", extractExtension(filename)));
             return;
           }
           Path target;
@@ -122,7 +115,6 @@ public final class Server {
       ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
     }
     System.setProperty("helidon.serialFilter.failure.action", "ignore");
-
     return WebServer.builder()
         .port(port)
         .host("localhost")
