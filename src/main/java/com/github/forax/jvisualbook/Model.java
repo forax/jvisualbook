@@ -62,9 +62,7 @@ public interface Model {
   /// Represents a single block of content within a [Section].
   ///
   /// Content is either a text block ([Kind#TEXT]) rendered as Markdown,
-  /// or a Java code block ([Kind#CODE]).
-  ///
-  /// The Java code block is sent by the UI as a [Code] object for execution.
+  /// or a Java code block ([Kind#CODE]) rendered using the monaco editor.
   ///
   /// @param kind the type of this content block
   /// @param text the raw text of this block
@@ -72,7 +70,7 @@ public interface Model {
 
     /// Discriminates between the two kinds of content blocks in a section.
     /// Note: there is no kind OUTPUT, which is defined in the UI part
-    /// but does not exist in the backend part.
+    /// but does not exist in the backend part (which reflects a document).
     public enum Kind {
       /// A text block whose text is rendered as Markdown.
       TEXT,
@@ -117,8 +115,8 @@ public interface Model {
     }
   }
 
-  /// Represents the result of executing a [Code] object, containing one
-  /// [Evaluation] per submitted [Snippet], in order.
+  /// Represents the result of executing a [Code] object,
+  /// containing one [Evaluation] per submitted [Snippet], in order.
   ///
   /// @param evaluations the ordered list of per-snippet evaluation results; never `null`
   record Execution(List<Evaluation> evaluations) {
