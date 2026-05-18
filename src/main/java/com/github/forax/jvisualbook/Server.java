@@ -13,6 +13,7 @@ import java.io.ObjectInputFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public final class Server {
@@ -28,7 +29,7 @@ public final class Server {
 
   private static String extractExtension(String filename) {
     var dot = filename.lastIndexOf('.');
-    return dot == -1 ? "" : filename.substring(dot + 1).toLowerCase();
+    return dot == -1 ? "" : filename.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
   private static Path validatePath(Path root, String filename) throws IOException {
