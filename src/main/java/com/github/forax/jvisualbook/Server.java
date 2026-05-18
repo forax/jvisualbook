@@ -25,11 +25,11 @@ public final class Server {
     return dot == -1 ? "" : filename.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  private static Path validatePath(Path root, String filename) throws IOException {
+  private static Path validatePath(Path root, String filename) {
     var base = root.normalize().toAbsolutePath();
     var target = base.resolve(filename).normalize().toAbsolutePath();
     if (!target.startsWith(base)) {
-      throw new IOException("invalid path: " + target);
+      return null;  // invalid path
     }
     return target;
   }
@@ -65,10 +65,8 @@ public final class Server {
         })
         .get("/api/chapter/{filename}", (req, res) -> {
           var filename = req.path().pathParameters().get("filename");
-          Path target;
-          try {
-            target = validatePath(Path.of("."), filename + ".jsh");
-          } catch (IOException e) {
+          var target = validatePath(Path.of("."), filename + ".jsh");
+          if (target == null) {
             res.status(Status.FORBIDDEN_403).send();
             return;
           }
@@ -91,10 +89,8 @@ public final class Server {
             res.status(Status.BAD_REQUEST_400).send(Map.of("extension", extractExtension(filename)));
             return;
           }
-          Path target;
-          try {
-            target = validatePath(Path.of("images"), filename);
-          } catch (IOException e) {
+          var target = validatePath(Path.of("images"), filename);
+          if (target == null) {
             res.status(Status.FORBIDDEN_403).send();
             return;
           }
