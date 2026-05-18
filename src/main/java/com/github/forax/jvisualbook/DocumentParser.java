@@ -54,7 +54,7 @@ public final class DocumentParser {
     default void endDocument() { /*empty*/ }
     default void start(LineKind kind) {
       switch(kind) {
-        case null -> throw null;
+        case null -> throw null;  // trick to make the switch exhaustive
         case CODE -> startCode();
         case TEXT -> startText();
         case SECTION -> startSection();
@@ -63,7 +63,7 @@ public final class DocumentParser {
     }
     default void end(LineKind kind) {
       switch(kind) {
-        case null -> throw null;
+        case null -> throw null;  // trick to make the switch exhaustive
         case CODE -> endCode();
         case TEXT -> endText();
         case SECTION -> endSection();
