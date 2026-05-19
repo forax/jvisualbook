@@ -186,10 +186,6 @@ public final class DocumentParser {
 
     /// Called for every line, including blank ones.
     ///
-    /// The `line` argument has already been cleaned by [LineKind#clean]:
-    /// the `// ` prefix is stripped from TEXT and SECTION lines,
-    /// while CODE and BLANK lines are passed through verbatim.
-    ///
     /// @param kind the kind of the line
     /// @param line the cleaned line content
     void line(LineKind kind, String line);
