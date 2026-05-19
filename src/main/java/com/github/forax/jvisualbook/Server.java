@@ -14,7 +14,6 @@ import java.io.ObjectInputFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /// HTTP server for JVisualBook, built on top of
@@ -23,13 +22,13 @@ import java.util.Map;
 /// The server exposes three groups of endpoints and serves the compiled React
 /// front-end as static content from the classpath:
 ///
-/// | Method | Path                       | Description                                  |
-/// |--------|----------------------------|----------------------------------------------|
-/// | GET    | `/api/chapter`             | List all available chapters                  |
-/// | GET    | `/api/chapter/{filename}`  | Fetch the parsed document for a chapter      |
-/// | POST   | `/api/code`                | Evaluate a [Model.Code] object via JShell    |
-/// | GET    | `/images/{filename}`       | Serve an image file from `./images/`         |
-/// | GET    | `/**`                      | Static React front-end (classpath `/public`) |
+/// | Method | Path                       | Description                                     |
+/// |--------|----------------------------|-------------------------------------------------|
+/// | GET    | `/api/chapter`             | List all available chapters                     |
+/// | GET    | `/api/chapter/{filename}`  | Fetch the parsed document for a chapter         |
+/// | POST   | `/api/code`                | Evaluate a [Model.Program] object via JShell    |
+/// | GET    | `/images/{filename}`       | Serve an image file from `./images/`            |
+/// | GET    | `/**`                      | Static React front-end (classpath `/public`)    |
 ///
 /// All JSON serialisation and deserialisation is handled by
 /// [Jackson](https://github.com/FasterXML/jackson).
@@ -55,7 +54,7 @@ import java.util.Map;
 /// @see Model
 public final class Server {
 
-  /// The maximum number of seconds JShell is allowed to evaluate a [Model.Code]
+  /// The maximum number of seconds JShell is allowed to evaluate a [Model.Program]
   /// request before being forcibly stopped.
   ///
   /// @see JShellRunner#evaluate
@@ -104,8 +103,8 @@ public final class Server {
 
   /// Evaluates `code` by delegating to [JShellRunner#evaluate] with the
   /// server-wide [#TIMEOUT_SECONDS] limit.
-  private static Model.Execution executeCode(Model.Code code) {
-    return JShellRunner.evaluate(code, TIMEOUT_SECONDS);
+  private static Model.Execution executeProgram(Model.Program program) {
+    return JShellRunner.evaluate(program, TIMEOUT_SECONDS);
   }
 
   /// Registers all HTTP routes on `routing`.
@@ -125,7 +124,7 @@ public final class Server {
   ///
   /// ### `POST /api/code`
   ///
-  /// Accepts a JSON [Model.Code] body, evaluates it via [JShellRunner], and
+  /// Accepts a JSON [Model.Program] body, evaluates it via [JShellRunner], and
   /// returns a JSON [Model.Execution].
   ///
   /// ### `GET /images/{filename}`
@@ -157,8 +156,8 @@ public final class Server {
           }
         })
         .post("/api/code", (req, res) -> {
-          var code = req.content().as(Model.Code.class);
-          var execution = executeCode(code);
+          var program = req.content().as(Model.Program.class);
+          var execution = executeProgram(program);
           res.send(execution);
         })
         .get("/images/{filename}", (req, res) -> {

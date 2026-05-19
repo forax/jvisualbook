@@ -39,7 +39,7 @@ public class ServerIT {
     record Evaluation(String status, String text) {}
     record Execution(List<Evaluation> evaluations) {}
     var body = MAPPER.writeValueAsString(
-        new Model.Code(List.of(new Model.Snippet("""
+        new Model.Program(List.of(new Model.Snippet("""
             IO.println("hello");
             """))));
 
@@ -60,7 +60,7 @@ public class ServerIT {
     record Evaluation(String status, String text) {}
     record Execution(List<Evaluation> evaluations) {}
     var body = MAPPER.writeValueAsString(
-        new Model.Code(List.of(new Model.Snippet("this is not valid java;"))));
+        new Model.Program(List.of(new Model.Snippet("this is not valid java;"))));
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
@@ -78,7 +78,7 @@ public class ServerIT {
     record Evaluation(String status, String text) {}
     record Execution(List<Evaluation> evaluations) {}
     var body = MAPPER.writeValueAsString(
-        new Model.Code(List.of(new Model.Snippet("throw new RuntimeException(\"boom\");"))));
+        new Model.Program(List.of(new Model.Snippet("throw new RuntimeException(\"boom\");"))));
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
@@ -95,7 +95,7 @@ public class ServerIT {
   public void testPostCodeMultipleSnippets() throws IOException {
     record Evaluation(String status, String text) {}
     record Execution(List<Evaluation> evaluations) {}
-    var body = MAPPER.writeValueAsString(new Model.Code(List.of(
+    var body = MAPPER.writeValueAsString(new Model.Program(List.of(
         new Model.Snippet("System.out.println(\"first\");"),
         new Model.Snippet("System.out.println(\"second\");")
     )));
@@ -116,7 +116,7 @@ public class ServerIT {
   @Test
   public void testPostCodeEmptySnippetList() throws IOException {
     record Execution(List<?> evaluations) {}
-    var body = MAPPER.writeValueAsString(new Model.Code(List.of()));
+    var body = MAPPER.writeValueAsString(new Model.Program(List.of()));
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)

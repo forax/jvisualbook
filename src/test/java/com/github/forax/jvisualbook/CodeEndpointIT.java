@@ -48,7 +48,7 @@ public final class CodeEndpointIT {
     var snippets = Arrays.stream(snippetCodes)
         .map(Model.Snippet::new)
         .toList();
-    return MAPPER.writeValueAsString(new Model.Code(snippets));
+    return MAPPER.writeValueAsString(new Model.Program(snippets));
   }
 
   private static Execution post(String body) throws IOException {
@@ -72,7 +72,7 @@ public final class CodeEndpointIT {
 
   @Test
   public void emptySnippetListReturnsEmptyEvaluations() throws IOException {
-    var body = MAPPER.writeValueAsString(new Model.Code(List.of()));
+    var body = MAPPER.writeValueAsString(new Model.Program(List.of()));
     var execution = post(body);
     assertEquals(0, execution.evaluations().size());
   }

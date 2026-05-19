@@ -24,18 +24,18 @@ export async function fetchChapterDocument(chapterName) {
   return await response.json();
 }
 
-export async function postCode(code, signal) {
+export async function postCode(program, signal) {
   const response = await fetch(`${API_BASE_URL}/code`, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(code),
+    body: JSON.stringify(program),
     signal
   });
   if (!response.ok) {
-    throw Error(`Failed to post code, status: ${response.status}`);
+    throw Error(`Failed to post program, status: ${response.status}`);
   }
   return await response.json();
 }

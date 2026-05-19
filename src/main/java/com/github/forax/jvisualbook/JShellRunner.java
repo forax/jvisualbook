@@ -15,13 +15,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/// Evaluates [Model.Code] objects by running their [Model.Snippet]s
+/// Evaluates [Model.Program] objects by running their [Model.Snippet]s
 /// through a fresh JShell session.
 ///
 /// Each call to [#evaluate] creates a new [JShell] instance, executes all
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeoutException;
 ///
 /// Evaluation runs on a virtual-thread executor. If it does not complete within
 /// `timeoutSeconds`, [JShell#stop()] is called to interrupt the remote JVM and
-/// every snippet in the [Model.Code] is returned as a [Model.Evaluation.Status#ERROR]
+/// every snippet in the [Model.Program] is returned as a [Model.Evaluation.Status#ERROR]
 /// with a human-readable "timed out" message.
 ///
 /// ## Error handling
@@ -59,7 +60,7 @@ import java.util.concurrent.TimeoutException;
 /// - **Unexpected runner exception**: a [RuntimeException] thrown by
 ///   [JShell#eval(String)] itself (not by the evaluated code); propagated as-is.
 ///
-/// @see Model.Code
+/// @see Model.Program
 /// @see Model.Execution
 public final class JShellRunner {
 
@@ -68,18 +69,18 @@ public final class JShellRunner {
     throw new AssertionError();
   }
 
-  /// Evaluates all snippets in `code` and returns one [Model.Evaluation] per
-  /// snippet, in submission order.
+  /// Evaluates all snippets in `program` and returns one [Model.Evaluation]
+  /// per snippet, in submission order.
   ///
   /// A new [JShell] session is created for each call, so no state leaks between
-  /// invocations. The session is always closed when this method returns, whether
-  /// normally, via timeout, or via an unexpected exception.
+  /// invocations. The session is always closed when this method returns,
+  /// whether normally, via timeout, or via an unexpected exception.
   ///
   /// If execution exceeds `timeoutSeconds`, [JShell#stop()] is called and the
   /// returned [Model.Execution] contains one `ERROR` evaluation for every
   /// snippet in `code`.
   ///
-  /// @param code           the code to evaluate; must not be `null`
+  /// @param program        the program to evaluate; must not be `null`
   /// @param timeoutSeconds the maximum number of seconds to wait before
   ///                       forcibly stopping the JShell session; must be positive
   /// @return an [Model.Execution] whose `evaluations` list has the same size as
@@ -87,7 +88,13 @@ public final class JShellRunner {
   /// @throws UncheckedIOException if the evaluation thread is interrupted
   /// @throws UndeclaredThrowableException if [JShell#eval(String)] throws a checked
   ///         exception that is neither a [RuntimeException] nor an [Error]
-  public static Model.Execution evaluate(Model.Code code, int timeoutSeconds) {
+  /// @throws NullPointerException if `program` is `null`
+  /// @throws IllegalArgumentException if `timeoutSeconds` is negative
+  public static Model.Execution evaluate(Model.Program program, int timeoutSeconds) {
+    Objects.requireNonNull(program);
+    if (timeoutSeconds < 0) {
+      throw new IllegalArgumentException("timeoutSeconds < 0");
+    }
     var output = new ByteArrayOutputStream();
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
          var err = new PrintStream(output, true, StandardCharsets.UTF_8);
@@ -98,7 +105,7 @@ public final class JShellRunner {
              .compilerOptions("--enable-preview", "--source=" + Runtime.version().feature())
              .remoteVMOptions("--enable-preview")
              .build()) {
-      var future = executor.submit(() -> evaluateInShell(shell, output, code));
+      var future = executor.submit(() -> evaluateInShell(shell, output, program));
       try {
         return future.get(timeoutSeconds, TimeUnit.SECONDS);
       } catch (TimeoutException e) {
@@ -106,7 +113,7 @@ public final class JShellRunner {
         var timeoutEval = new Model.Evaluation(
             Model.Evaluation.Status.ERROR,
             "Error: execution timed out after " + timeoutSeconds + " seconds");
-        return new Model.Execution(Collections.nCopies(code.snippets().size(), timeoutEval));
+        return new Model.Execution(Collections.nCopies(program.snippets().size(), timeoutEval));
       } catch (InterruptedException e) {
         shell.stop();
         throw new UncheckedIOException("Evaluation interrupted", new IOException(e));
@@ -124,11 +131,11 @@ public final class JShellRunner {
   ///
   /// @param shell  the live JShell session to evaluate snippets in
   /// @param output the shared buffer capturing `stdout` and `stderr`
-  /// @param code   the code whose snippets are to be evaluated
+  /// @param program the program whose snippets are to be evaluated
   /// @return an [Model.Execution] containing one evaluation per snippet
-  private static Model.Execution evaluateInShell(JShell shell, ByteArrayOutputStream output, Model.Code code) {
+  private static Model.Execution evaluateInShell(JShell shell, ByteArrayOutputStream output, Model.Program program) {
     var evaluations = new ArrayList<Model.Evaluation>();
-    for (var snippet : code.snippets()) {
+    for (var snippet : program.snippets()) {
       var evaluation = evaluateSnippet(shell, output, snippet);
       evaluations.add(evaluation);
       output.reset();

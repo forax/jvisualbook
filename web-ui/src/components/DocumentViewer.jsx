@@ -92,11 +92,11 @@ function DocumentViewer({ chapterName }) {
     codeAbortController.current = controller;
 
     const codeBlocks = getCodeBlocks(doc);
-    const code = {
+    const program = {
       snippets: codeBlocks.map(text => ({ code: text }))
     };
     try {
-      const execution = await postCode(code, controller.signal);
+      const execution = await postCode(program, controller.signal);
       setDisplayDocument(mergeDocument(doc, execution));
     } catch (err) {
       if (err.name === 'AbortError') return;  // postCode() is aborted

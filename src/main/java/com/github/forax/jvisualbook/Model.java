@@ -8,7 +8,7 @@ import java.util.Objects;
 ///
 /// The model describes the full lifecycle of a chapter: from its discovery as a
 /// [Chapter], through its parsed representation as a [Document] composed of
-/// [Section]s and [Content] blocks, to code execution via [Code],
+/// [Section]s and [Content] blocks, to code execution via [Program],
 /// [Snippet]s, and their resulting [Execution] and [Evaluation]s.
 ///
 /// All classes are immutable, thus thread-safe.
@@ -89,17 +89,17 @@ public interface Model {
     }
   }
 
-  /// Represents a unit of Java code submitted for execution,
+  /// Represents a unit of Java program submitted for execution,
   /// consisting of one or more [Snippet]s.
   ///
   /// Snippets are executed sequentially in a single JShell session.
   /// Declarations made in an earlier snippet are visible to later ones.
   ///
   /// @param snippets the ordered list of snippets to evaluate
-  record Code(List<Snippet> snippets) {
-    /// Create a new Code
+  record Program(List<Snippet> snippets) {
+    /// Create a new Program
     /// @throws NullPointerException if `snippets` is `null`
-    public Code {
+    public Program {
       snippets = List.copyOf(snippets);
     }
   }
@@ -118,7 +118,7 @@ public interface Model {
     }
   }
 
-  /// Represents the result of executing a [Code] object,
+  /// Represents the result of executing a [Program],
   /// containing one [Evaluation] per submitted [Snippet], in order.
   ///
   /// @param evaluations the ordered list of per-snippet evaluation results; never `null`
