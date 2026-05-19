@@ -187,7 +187,7 @@ public final class DocumentParser {
     /// Called for every line, including blank ones.
     ///
     /// @param kind the kind of the line
-    /// @param line the cleaned line content
+    /// @param line the line content
     void line(LineKind kind, String line);
   }
 
