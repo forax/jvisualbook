@@ -191,11 +191,12 @@ public final class DocumentParser {
     void line(LineKind kind, String line);
   }
 
-  /// Scans `lines` and fires structural events on `handler`.
+  /// Scans `lines` and calls structural events on `handler`.
   ///
   /// This is the core parsing engine. It maintains a small state machine
-  /// (`inside` tracks the current open block, `insideSection` tracks whether a
-  /// section is open) and emits `start`/`end` events at every block boundary.
+  /// that emits `start`/`end` events.
+  ///
+  /// If there is no first section, a synthetic section with an empty title is created.
   ///
   /// @param lines   the source lines to scan, in order
   /// @param handler the event receiver; must not be `null`
@@ -257,8 +258,8 @@ public final class DocumentParser {
   /// Parses the `.jsh` file at `path` into a [Document].
   ///
   /// The file is read line by line.
-  /// Lines that form a prologue, text lines followed by blank lines
-  /// at the very top of the file, are dropped before parsing begins.
+  /// Lines that form the prologue (text lines followed by blank lines
+  /// at the very top of the file) are dropped before parsing begins.
   ///
   /// The lines are parsed according to the rules described in
   /// the [DocumentParser] documentation.
