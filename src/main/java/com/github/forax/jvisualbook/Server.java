@@ -140,7 +140,8 @@ public final class Server {
           try {
             res.send(allChapters());
           } catch (IOException e) {
-            res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+            res.status(Status.NOT_FOUND_404)
+                .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
           }
         })
         .get("/api/chapter/{filename}", (req, res) -> {
@@ -153,7 +154,8 @@ public final class Server {
           try {
             res.send(chapterDocument(target));
           } catch (IOException e) {
-            res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+            res.status(Status.NOT_FOUND_404)
+                .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
           }
         })
         .post("/api/code", (req, res) -> {
@@ -166,7 +168,8 @@ public final class Server {
           var mediaTypeOpt = MediaTypes.detectType(filename);
           String media;
           if (mediaTypeOpt.isEmpty() || !((media = mediaTypeOpt.orElseThrow().text()).startsWith("image/"))) {
-            res.status(Status.BAD_REQUEST_400).send(Map.of("extension", extractExtension(filename)));
+            res.status(Status.BAD_REQUEST_400)
+                .send(Map.of("extension", extractExtension(filename)));
             return;
           }
           var target = validatePath(Path.of("images"), filename);
@@ -183,7 +186,7 @@ public final class Server {
           } catch (IOException e) {
             if (!res.isSent()) {
               res.status(Status.NOT_FOUND_404)
-                 .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+                  .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
               return;
             }
             throw e;
