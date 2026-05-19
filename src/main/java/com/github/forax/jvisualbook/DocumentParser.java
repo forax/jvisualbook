@@ -261,9 +261,10 @@ public final class DocumentParser {
   /// Parses the `.jsh` file at `path` into a [Document].
   ///
   /// The file is read line by line.
-  /// Lines that form a prologue, consecutive text lines at the very top of the file,
-  /// followed by blank lines, are dropped before parsing begins.
-  /// Everything after that is parsed according to the rules described in
+  /// Lines that form a prologue, text lines followed by blank lines
+  /// at the very top of the file, are dropped before parsing begins.
+  ///
+  /// The lines are parsed according to the rules described in
   /// the [DocumentParser] documentation.
   ///
   /// @param path the path to the `.jsh` file
@@ -278,10 +279,10 @@ public final class DocumentParser {
           .dropWhile(LineKind.is(LineKind.BLANK))
           .toList();
     }
-    return parse(lines);
+    return parseLines(lines);
   }
 
-  /// Parses a pre-read list of source lines into a [Document].
+  /// Parses a list of source lines into a [Document].
   ///
   /// This overload is called internally after prologue stripping.
   /// It sets up a stateful [EventHandler] that accumulates [Section]s
@@ -289,7 +290,7 @@ public final class DocumentParser {
   ///
   /// @param lines the source lines to parse, with the prologue already removed
   /// @return the parsed [Document]
-  private static Document parse(List<String> lines) {
+  private static Document parseLines(List<String> lines) {
     var handler = new EventHandler() {
       private StringBuilder builder;
       private ArrayList<Content> contents;
