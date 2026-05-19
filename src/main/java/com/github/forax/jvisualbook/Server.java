@@ -66,10 +66,10 @@ public final class Server {
     throw new AssertionError();
   }
 
-  /// Extracts the file extension from `filename`, in lower case.
+  /// Extracts the file extension from `filename`.
   private static String extractExtension(String filename) {
     var dot = filename.lastIndexOf('.');
-    return dot == -1 ? "" : filename.substring(dot + 1).toLowerCase(Locale.ROOT);
+    return dot == -1 ? "" : filename.substring(dot + 1);
   }
 
   /// Resolves `filename` relative to `root` and verifies that the result stays
