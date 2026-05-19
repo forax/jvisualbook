@@ -103,7 +103,7 @@ public final class Server {
 
   /// Evaluates `code` by delegating to [JShellRunner#evaluate] with the
   /// server-wide [#TIMEOUT_SECONDS] limit.
-  private static Model.Execution executeProgram(Model.Program program) {
+  private static Model.Execution executeProgram(Model.Program program) throws InterruptedException {
     return JShellRunner.evaluate(program, TIMEOUT_SECONDS);
   }
 

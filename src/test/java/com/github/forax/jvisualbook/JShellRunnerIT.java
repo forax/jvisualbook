@@ -13,14 +13,14 @@ public final class JShellRunnerIT {
   // --- evaluate(Code) ---
 
   @Test
-  public void evaluateEmptyCode() {
+  public void evaluateEmptyCode() throws InterruptedException {
     var program = new Model.Program(List.of());
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(new Model.Execution(List.of()), execution);
   }
 
   @Test
-  public void evaluateSingleSuccessfulSnippet() {
+  public void evaluateSingleSuccessfulSnippet() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("1 + 1;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(1, execution.evaluations().size());
@@ -28,7 +28,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluatePrintlnCapturesOutput() {
+  public void evaluatePrintlnCapturesOutput() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("IO.println(\"hello\");")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(1, execution.evaluations().size());
@@ -38,7 +38,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateStderrCapturedToo() {
+  public void evaluateStderrCapturedToo() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("System.err.println(\"oops\");")));
     var execution = JShellRunner.evaluate(program, 5);
     var eval = execution.evaluations().getFirst();
@@ -47,7 +47,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateSyntaxErrorReturnsError() {
+  public void evaluateSyntaxErrorReturnsError() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int x = ;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(1, execution.evaluations().size());
@@ -57,7 +57,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateUndefinedVariableReturnsError() {
+  public void evaluateUndefinedVariableReturnsError() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int x = undefinedVar;")));
     var execution = JShellRunner.evaluate(program, 5);
     var eval = execution.evaluations().getFirst();
@@ -65,7 +65,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateMultipleSnippetsIndependentResults() {
+  public void evaluateMultipleSnippetsIndependentResults() throws InterruptedException {
     var snippet1 = new Model.Snippet("IO.println(\"first\");");
     var snippet2 = new Model.Snippet("IO.println(\"second\");");
     var program = new Model.Program(List.of(snippet1, snippet2));
@@ -76,7 +76,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateOutputIsResetBetweenSnippets() {
+  public void evaluateOutputIsResetBetweenSnippets() throws InterruptedException {
     var snippet1 = new Model.Snippet("IO.println(\"a\");");
     var snippet2 = new Model.Snippet("IO.println(\"b\");");
     var program = new Model.Program(List.of(snippet1, snippet2));
@@ -86,7 +86,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateSnippetWithMultipleStatements() {
+  public void evaluateSnippetWithMultipleStatements() throws InterruptedException {
     var snippet = new Model.Snippet("System.out.print(\"x\"); System.out.print(\"y\");");
     var program = new Model.Program(List.of(snippet));
     var execution = JShellRunner.evaluate(program, 5);
@@ -96,14 +96,14 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateVariableDeclarationSucceeds() {
+  public void evaluateVariableDeclarationSucceeds() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int x = 42;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.SUCCESS, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateVariableSharedAcrossSnippets() {
+  public void evaluateVariableSharedAcrossSnippets() throws InterruptedException {
     var snippet1 = new Model.Snippet("int x = 42;");
     var snippet2 = new Model.Snippet("IO.println(x);");
     var program = new Model.Program(List.of(snippet1, snippet2));
@@ -115,7 +115,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateErrorDoesNotAffectSubsequentSnippets() {
+  public void evaluateErrorDoesNotAffectSubsequentSnippets() throws InterruptedException {
     var snippet1 = new Model.Snippet("int x = !!;");
     var snippet2 = new Model.Snippet("IO.println(\"ok\");");
     var program = new Model.Program(List.of(snippet1, snippet2));
@@ -127,7 +127,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateSuccessfulSnippetHasEmptyTextWhenNoOutput() {
+  public void evaluateSuccessfulSnippetHasEmptyTextWhenNoOutput() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int y = 5;")));
     var execution = JShellRunner.evaluate(program, 5);
     var eval = execution.evaluations().getFirst();
@@ -136,7 +136,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateMethodDefinitionSucceeds() {
+  public void evaluateMethodDefinitionSucceeds() throws InterruptedException {
     var snippet = new Model.Snippet("int square(int n) { return n * n; }");
     var program = new Model.Program(List.of(snippet));
     var execution = JShellRunner.evaluate(program, 5);
@@ -144,7 +144,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateSeveralLinesSucceeds() {
+  public void evaluateSeveralLinesSucceeds() throws InterruptedException {
     var snippet = new Model.Snippet("""
         var a = 3;
         IO.println(a);
@@ -165,7 +165,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateValueClassAcmp() {
+  public void evaluateValueClassAcmp() throws InterruptedException {
     assumeTrue(isValueClassEnabled());
 
     var snippet = new Model.Snippet("""
@@ -183,7 +183,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateSynchronizedWithAValueClass() {
+  public void evaluateSynchronizedWithAValueClass() throws InterruptedException {
     assumeTrue(isValueClassEnabled());
 
     var snippet = new Model.Snippet("""
@@ -202,91 +202,91 @@ public final class JShellRunnerIT {
   // --- Parse/syntax errors ---
 
   @Test
-  public void evaluateMissingClosingParenthesis() {
+  public void evaluateMissingClosingParenthesis() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("IO.println(\"hello\";")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateMissingClosingBrace() {
+  public void evaluateMissingClosingBrace() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("if (true) { int x = 1;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateKeywordAsVariableName() {
+  public void evaluateKeywordAsVariableName() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int class = 5;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateKeywordAsMethodName() {
+  public void evaluateKeywordAsMethodName() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("void return() {}")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateKeywordAsParameterName() {
+  public void evaluateKeywordAsParameterName() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("void foo(int while) {}")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateDoubleSemicolon() {
+  public void evaluateDoubleSemicolon() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int x = 1;;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.SUCCESS, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateIncompleteMethodCall() {
+  public void evaluateIncompleteMethodCall() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("Math.abs(")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateMalformedTernary() {
+  public void evaluateMalformedTernary() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int x = true ? 1;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateInvalidOperatorSequence() {
+  public void evaluateInvalidOperatorSequence() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("int x = 1 ++ + ++ 2;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateMissingTypeInDeclaration() {
+  public void evaluateMissingTypeInDeclaration() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("x = 42;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateUnclosedStringLiteral() {
+  public void evaluateUnclosedStringLiteral() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("String s = \"hello;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateInvalidAnnotationSyntax() {
+  public void evaluateInvalidAnnotationSyntax() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("@123 int x = 1;")));
     var execution = JShellRunner.evaluate(program, 5);
     assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
   }
 
   @Test
-  public void evaluateMethodDefinitionAndCallAcrossSnippets() {
+  public void evaluateMethodDefinitionAndCallAcrossSnippets() throws InterruptedException {
     var snippet1 = new Model.Snippet("int square(int n) { return n * n; }");
     var snippet2 = new Model.Snippet("IO.println(square(4));");
     var program = new Model.Program(List.of(snippet1, snippet2));
@@ -296,7 +296,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateMissingRefrence() {
+  public void evaluateMissingRefrence() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("""
         IO.println(a);
         """)));
@@ -307,7 +307,7 @@ public final class JShellRunnerIT {
   // --- timeout ---
 
   @Test
-  public void evaluateTimeoutReturnsErrorForAllSnippets() {
+  public void evaluateTimeoutReturnsErrorForAllSnippets() throws InterruptedException {
     var snippet1 = new Model.Snippet("for(;;);");
     var snippet2 = new Model.Snippet("""
         IO.println("never");
@@ -320,7 +320,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateTimeoutMessageMentionsTimeout() {
+  public void evaluateTimeoutMessageMentionsTimeout() throws InterruptedException {
     var program = new Model.Program(List.of(new Model.Snippet("while (true) {}")));
     var execution = JShellRunner.evaluate(program, 1);
     var eval = execution.evaluations().getFirst();
@@ -335,7 +335,7 @@ public final class JShellRunnerIT {
   }
 
   @Test
-  public void evaluateSnippetAfterTimeoutIsIndependent() {
+  public void evaluateSnippetAfterTimeoutIsIndependent() throws InterruptedException {
     var slow = new Model.Program(List.of(new Model.Snippet("for(;;);")));
     JShellRunner.evaluate(slow, 1);
 

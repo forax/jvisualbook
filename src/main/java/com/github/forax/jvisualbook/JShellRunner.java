@@ -85,12 +85,11 @@ public final class JShellRunner {
   ///                       forcibly stopping the JShell session; must be positive
   /// @return an [Model.Execution] whose `evaluations` list has the same size as
   ///         `code.snippets()`; never `null`
-  /// @throws UncheckedIOException if the evaluation thread is interrupted
-  /// @throws UndeclaredThrowableException if [JShell#eval(String)] throws a checked
-  ///         exception that is neither a [RuntimeException] nor an [Error]
+  /// @throws InterruptedException if the current thread is interrupted
+  /// @throws UndeclaredThrowableException if [JShell#eval(String)] throws a checked exception.
   /// @throws NullPointerException if `program` is `null`
   /// @throws IllegalArgumentException if `timeoutSeconds` is negative
-  public static Model.Execution evaluate(Model.Program program, int timeoutSeconds) {
+  public static Model.Execution evaluate(Model.Program program, int timeoutSeconds) throws InterruptedException{
     Objects.requireNonNull(program);
     if (timeoutSeconds < 0) {
       throw new IllegalArgumentException("timeoutSeconds < 0");
@@ -116,7 +115,7 @@ public final class JShellRunner {
         return new Model.Execution(Collections.nCopies(program.snippets().size(), timeoutEval));
       } catch (InterruptedException e) {
         shell.stop();
-        throw new UncheckedIOException("Evaluation interrupted", new IOException(e));
+        throw e;
       } catch (ExecutionException e) {
         switch (e.getCause()) {
           case RuntimeException runtimeException -> throw runtimeException;
