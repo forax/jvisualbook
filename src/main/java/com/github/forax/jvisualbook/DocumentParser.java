@@ -344,9 +344,7 @@ public final class DocumentParser {
       @Override
       public void line(LineKind kind, String line) {
         switch(kind) {
-          case SECTION -> {
-            sectionTitle = line;
-          }
+          case SECTION -> sectionTitle = line;
           case BLANK -> {}
           case CODE, TEXT -> {
             if (!builder.isEmpty()) {
