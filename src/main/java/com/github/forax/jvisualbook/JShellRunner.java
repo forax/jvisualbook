@@ -47,7 +47,7 @@ import java.util.concurrent.TimeoutException;
 /// Evaluation runs on a virtual-thread executor. If it does not complete within
 /// `timeoutSeconds`, [JShell#stop()] is called to interrupt the remote JVM and
 /// every snippet in the [Model.Program] is returned as a [Model.Evaluation.Status#ERROR]
-/// with a human-readable "timed out" message.
+/// with a "timed out" message.
 ///
 /// ## Error handling
 ///
