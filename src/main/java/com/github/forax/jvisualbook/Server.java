@@ -174,15 +174,20 @@ public final class Server {
             res.status(Status.FORBIDDEN_403).send();
             return;
           }
-          byte[] bytes;
-          try {
-            bytes = Files.readAllBytes(target);
+          try (var input = Files.newInputStream(target)) {
+            res.header(HeaderNames.CONTENT_TYPE, media);
+            res.contentLength(Files.size(target));
+            try (var output = res.outputStream()) {
+              input.transferTo(output);
+            }
           } catch (IOException e) {
-            res.status(Status.NOT_FOUND_404).send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
-            return;
+            if (!res.isSent()) {
+              res.status(Status.NOT_FOUND_404)
+                 .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+              return;
+            }
+            throw e;
           }
-          res.headers().set(HeaderNames.CONTENT_TYPE, media);
-          res.send(bytes);
         });
   }
 
