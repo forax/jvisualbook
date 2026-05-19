@@ -73,6 +73,7 @@ public final class Server {
 
   /// Resolves `filename` relative to `root` and verifies that the result stays
   /// within `root`, guarding against path traversal attacks.
+  /// @return the validated `path` or null if the `path` is outside the `root` directory
   private static Path validatePath(Path root, String filename) {
     var base = root.normalize().toAbsolutePath();
     var target = base.resolve(filename).normalize().toAbsolutePath();
