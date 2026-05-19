@@ -91,8 +91,8 @@ public final class JShellRunner {
   /// @throws IllegalArgumentException if `timeoutSeconds` is negative
   public static Model.Execution evaluate(Model.Program program, int timeoutSeconds) throws InterruptedException{
     Objects.requireNonNull(program);
-    if (timeoutSeconds < 0) {
-      throw new IllegalArgumentException("timeoutSeconds < 0");
+    if (timeoutSeconds <= 0) {
+      throw new IllegalArgumentException("timeoutSeconds <= 0");
     }
     var output = new ByteArrayOutputStream();
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
