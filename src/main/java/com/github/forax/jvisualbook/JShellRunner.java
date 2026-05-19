@@ -21,11 +21,72 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/// Evaluates [Model.Code] objects by running their [Model.Snippet]s
+/// through a fresh JShell session.
+///
+/// Each call to [#evaluate] creates a new [JShell] instance, executes all
+/// snippets sequentially in that session, and then closes it.
+///
+/// Declarations made in an earlier snippet (variables, methods, classes, ...)
+/// are therefore visible to every later snippet in the same call,
+/// but no state persists across calls.
+///
+/// ## Output capture
+///
+/// Each [Model.Evaluation] contains only the output (`stdout` and `stderr`)
+/// produced by its own snippet.
+///
+/// ## Preview features
+///
+/// The JShell instance is configured with `--enable-preview`,
+/// so snippets can use Java preview features that match the running JDK.
+///
+/// ## Timeout
+///
+/// Evaluation runs on a virtual-thread executor. If it does not complete within
+/// `timeoutSeconds`, [JShell#stop()] is called to interrupt the remote JVM and
+/// every snippet in the [Model.Code] is returned as a [Model.Evaluation.Status#ERROR]
+/// with a human-readable "timed out" message.
+///
+/// ## Error handling
+///
+/// Three categories of failure are mapped to [Model.Evaluation.Status#ERROR]:
+///
+/// - **Compile-time rejection**: a snippet whose [Snippet.Status] is
+///   `REJECTED`; the first compiler diagnostic is used as the error text.
+/// - **Runtime exception**: an [EvalException] or other [JShellException]
+///   thrown during evaluation; the exception class name and message are used.
+/// - **Unexpected runner exception**: a [RuntimeException] thrown by
+///   [JShell#eval(String)] itself (not by the evaluated code); propagated as-is.
+///
+/// @see Model.Code
+/// @see Model.Execution
 public final class JShellRunner {
+
+  /// This class is a utility class
   private JShellRunner() {
     throw new AssertionError();
   }
 
+  /// Evaluates all snippets in `code` and returns one [Model.Evaluation] per
+  /// snippet, in submission order.
+  ///
+  /// A new [JShell] session is created for each call, so no state leaks between
+  /// invocations. The session is always closed when this method returns, whether
+  /// normally, via timeout, or via an unexpected exception.
+  ///
+  /// If execution exceeds `timeoutSeconds`, [JShell#stop()] is called and the
+  /// returned [Model.Execution] contains one `ERROR` evaluation for every
+  /// snippet in `code`.
+  ///
+  /// @param code           the code to evaluate; must not be `null`
+  /// @param timeoutSeconds the maximum number of seconds to wait before
+  ///                       forcibly stopping the JShell session; must be positive
+  /// @return an [Model.Execution] whose `evaluations` list has the same size as
+  ///         `code.snippets()`; never `null`
+  /// @throws UncheckedIOException if the evaluation thread is interrupted
+  /// @throws UndeclaredThrowableException if [JShell#eval(String)] throws a checked
+  ///         exception that is neither a [RuntimeException] nor an [Error]
   public static Model.Execution evaluate(Model.Code code, int timeoutSeconds) {
     var output = new ByteArrayOutputStream();
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
@@ -59,6 +120,12 @@ public final class JShellRunner {
     }
   }
 
+  /// Iterates over the snippets in `code` and evaluates each one in sequence.
+  ///
+  /// @param shell  the live JShell session to evaluate snippets in
+  /// @param output the shared buffer capturing `stdout` and `stderr`
+  /// @param code   the code whose snippets are to be evaluated
+  /// @return an [Model.Execution] containing one evaluation per snippet
   private static Model.Execution evaluateInShell(JShell shell, ByteArrayOutputStream output, Model.Code code) {
     var evaluations = new ArrayList<Model.Evaluation>();
     for (var snippet : code.snippets()) {
@@ -69,6 +136,33 @@ public final class JShellRunner {
     return new Model.Execution(evaluations);
   }
 
+  /// Evaluates a single [Model.Snippet] and returns its [Model.Evaluation].
+  ///
+  /// Because JShell's [JShell#eval(String)] accepts only one complete compilation unit
+  /// at a time, the snippet source is fed through
+  /// [jdk.jshell.SourceCodeAnalysis#analyzeCompletion] in a loop to split it
+  /// into individually complete units before submission.
+  /// This allows a snippet to contain multiple statements or declarations.
+  ///
+  /// The method returns [Model.Evaluation.Status#ERROR] early on the first
+  /// failure encountered:
+  ///
+  /// - A [Snippet.Status#REJECTED] event (compile error), using the first
+  ///   compiler diagnostic as the error text;
+  /// - An [EvalException] (runtime exception thrown by the evaluated code),
+  ///   using `exceptionClassName: message` as the error text;
+  /// - Any other [JShellException], formatted the same way;
+  /// - A [RuntimeException] thrown by [JShell#eval(String)] itself (runner-level error).
+  ///
+  /// If no failure occurs, the text captured in `output` up to this point is
+  /// returned as a [Model.Evaluation.Status#SUCCESS] evaluation.
+  /// An empty string indicates that the snippet produced no output.
+  ///
+  /// @param shell   the live JShell session
+  /// @param output  the shared buffer that has been capturing `stdout`/`stderr`
+  ///                since the last reset; read but not reset by this method
+  /// @param snippet the snippet to evaluate
+  /// @return the evaluation result; never `null`
   private static Model.Evaluation evaluateSnippet(JShell shell, ByteArrayOutputStream output, Model.Snippet snippet) {
     var source = snippet.code();
     var analysis = shell.sourceCodeAnalysis();

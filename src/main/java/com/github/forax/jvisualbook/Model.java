@@ -10,6 +10,8 @@ import java.util.Objects;
 /// [Chapter], through its parsed representation as a [Document] composed of
 /// [Section]s and [Content] blocks, to code execution via [Code],
 /// [Snippet]s, and their resulting [Execution] and [Evaluation]s.
+///
+/// All classes are immutable, thus thread-safe.
 public interface Model {
 
   /// Represents a discovered chapter, identified by its name.
