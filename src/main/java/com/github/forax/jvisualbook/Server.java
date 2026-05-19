@@ -110,8 +110,8 @@ public final class Server {
 
   /// Registers all HTTP routes on `routing`.
   ///
-  /// This method is package-private so that tests can reuse it directly without
-  /// starting a real server via [#start].
+  /// This method is package-private so tests can call it directly
+  /// without starting a real server via [#start].
   ///
   /// ### `GET /api/chapter`
   ///
