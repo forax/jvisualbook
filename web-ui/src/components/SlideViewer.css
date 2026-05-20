@@ -122,10 +122,3 @@
     flex-direction: column;
     gap: 0.75rem;
 }
-
-.slide-title img,
-.slide-body img {
-    max-width: 80%;
-    height: auto;
-    display: block;
-}
