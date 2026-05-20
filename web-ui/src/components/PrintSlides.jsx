@@ -18,8 +18,9 @@ export function printSlidesAsPDF(doc) {
   }
 
   const root = ReactDOM.createRoot(container);
+  const cleanup = () => { root.unmount(); container.remove(); };
   root.render(<PrintSlides doc={doc} onReady={() => {
-    window.onafterprint = () => { root.unmount(); container.remove(); };
+    window.addEventListener('afterprint', cleanup, { once: true });
     window.print();
   }} />);
 }
