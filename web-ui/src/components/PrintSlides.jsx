@@ -8,10 +8,14 @@ import './PrintSlides.css';
  * then triggers window.print(). Cleaned up after printing.
  */
 export function printSlidesAsPDF(doc) {
-  // Create a container outside the React root
-  const container = document.createElement('div');
-  container.style.display = 'none'; // hidden until print media query takes over
-  document.body.appendChild(container);
+  // Create (or reuse) a container outside the React root
+  let container = document.getElementById('print-slides-root');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'print-slides-root';
+    container.style.display = 'none'; // hidden until print media query takes over
+    document.body.appendChild(container);
+  }
 
   const root = ReactDOM.createRoot(container);
   root.render(<PrintSlides doc={doc} onReady={() => {
