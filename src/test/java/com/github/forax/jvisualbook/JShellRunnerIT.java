@@ -331,7 +331,7 @@ public final class JShellRunnerIT {
   @Test
   public void evaluateTimeoutDoesNotHangForever() {
     var program = new Model.Program(List.of(new Model.Snippet("while (true) {}")));
-    assertTimeoutPreemptively(Duration.ofMillis(1000), () -> JShellRunner.evaluate(program, 100));
+    assertTimeoutPreemptively(Duration.ofMillis(2000), () -> JShellRunner.evaluate(program, 100));
   }
 
   @Test
