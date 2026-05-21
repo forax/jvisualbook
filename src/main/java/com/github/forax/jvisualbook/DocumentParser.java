@@ -90,7 +90,7 @@ public final class DocumentParser {
     String clean(String line) {
       return switch(this) {
         case BLANK, CODE -> line;
-        case TEXT, SECTION -> line.substring(3);
+        case TEXT, SECTION -> line.substring("// ".length());
       };
     }
 
