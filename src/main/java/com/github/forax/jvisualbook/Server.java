@@ -288,6 +288,8 @@ public final class Server {
   /// Parse the command-line arguments and starts the server.
   static void main(String[] args) {
     var config = parseConfig(args);
+    System.out.println("Starting server at http://localhost:" + config.port() +
+        " with dir=" + config.dir() + ", timeout=" + config.timeoutMillis() + "ms");
     start(config.port(), config.dir(), config.timeoutMillis());
   }
 }
