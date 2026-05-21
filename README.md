@@ -45,10 +45,11 @@ http://localhost:8080
 JVisualBook discovers chapters by listing `.jsh` files in the directory where the server is started.
 Chapter names are the file names without the `.jsh` extension, sorted alphabetically.
 
-A chapter is composed of sections. Each section starts with a heading and alternates text blocks and code.
+A chapter is composed of a prologue followed by sections.
+Each section starts with a heading and alternates text blocks and code.
 
-Comment lines before the first section heading are dropped during parsing.
-You can use this "prologue" for anything that should not appear in the rendered document,
+The prologue is defined by all leading text lines followed by blank lines, those lines are ignored.
+You can use this prologue for anything that should not appear in the rendered document,
 such as instructions on how to open the file in JVisualBook.
 
 ### Section headings
