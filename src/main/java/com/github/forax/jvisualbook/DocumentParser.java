@@ -109,7 +109,7 @@ public final class DocumentParser {
     }
 
     /// Returns a predicate that tests whether a line has the given [LineKind].
-    static Predicate<String> is(LineKind kind) {
+    static Predicate<String> matches(LineKind kind) {
       return line -> kind(line) == kind;
     }
   }
@@ -271,8 +271,8 @@ public final class DocumentParser {
     Objects.requireNonNull(path);
     List<String> lines;
     try(var stream = Files.lines(path)) {
-      lines = stream.dropWhile(LineKind.is(LineKind.TEXT))
-          .dropWhile(LineKind.is(LineKind.BLANK))
+      lines = stream.dropWhile(LineKind.matches(LineKind.TEXT))
+          .dropWhile(LineKind.matches(LineKind.BLANK))
           .toList();
     }
     return parseLines(lines);
