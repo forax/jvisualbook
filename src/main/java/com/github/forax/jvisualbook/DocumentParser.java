@@ -257,12 +257,11 @@ public final class DocumentParser {
 
   /// Parses the `.jsh` file at `path` into a [Document].
   ///
-  /// The file is read line by line.
+  /// The lines are loaded in memory and parsed according to the rules
+  /// described in the overview documentation of this class.
+  ///
   /// Lines that form the prologue (text lines followed by blank lines
   /// at the very top of the file) are dropped before parsing begins.
-  ///
-  /// The lines are parsed according to the rules described in
-  /// the [DocumentParser] documentation.
   ///
   /// @param path the path to the `.jsh` file
   /// @return the parsed [Document]
