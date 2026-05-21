@@ -7,9 +7,7 @@ import jdk.jshell.Snippet;
 import jdk.jshell.SnippetEvent;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -80,19 +78,19 @@ public final class JShellRunner {
   /// returned [Model.Execution] contains one `ERROR` evaluation for every
   /// snippet in `code`.
   ///
-  /// @param program        the program to evaluate; must not be `null`
-  /// @param timeoutSeconds the maximum number of seconds to wait before
-  ///                       forcibly stopping the JShell session; must be positive
+  /// @param program the program to evaluate; must not be `null`
+  /// @param timeoutMillis the maximum number of milliseconds to wait before
+  ///                      forcibly stopping the JShell session; must be positive
   /// @return an [Model.Execution] whose `evaluations` list has the same size as
   ///         `code.snippets()`; never `null`
   /// @throws InterruptedException if the current thread is interrupted
   /// @throws UndeclaredThrowableException if [JShell#eval(String)] throws a checked exception.
   /// @throws NullPointerException if `program` is `null`
-  /// @throws IllegalArgumentException if `timeoutSeconds` is negative
-  public static Model.Execution evaluate(Model.Program program, int timeoutSeconds) throws InterruptedException{
+  /// @throws IllegalArgumentException if `timeoutMillis` is negative
+  public static Model.Execution evaluate(Model.Program program, int timeoutMillis) throws InterruptedException{
     Objects.requireNonNull(program);
-    if (timeoutSeconds <= 0) {
-      throw new IllegalArgumentException("timeoutSeconds <= 0");
+    if (timeoutMillis <= 0) {
+      throw new IllegalArgumentException("timeoutMs <= 0");
     }
     var output = new ByteArrayOutputStream();
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
@@ -106,12 +104,12 @@ public final class JShellRunner {
              .build()) {
       var future = executor.submit(() -> evaluateInShell(shell, output, program));
       try {
-        return future.get(timeoutSeconds, TimeUnit.SECONDS);
+        return future.get(timeoutMillis, TimeUnit.MILLISECONDS);
       } catch (TimeoutException e) {
         shell.stop();
         var timeoutEval = new Model.Evaluation(
             Model.Evaluation.Status.ERROR,
-            "Error: execution timed out after " + timeoutSeconds + " seconds");
+            "Error: execution timed out after " + timeoutMillis + " milliseconds");
         return new Model.Execution(Collections.nCopies(program.snippets().size(), timeoutEval));
       } catch (InterruptedException e) {
         shell.stop();

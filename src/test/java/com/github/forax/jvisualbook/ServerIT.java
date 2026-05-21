@@ -11,6 +11,7 @@ import io.helidon.webserver.testing.junit5.SetUpRoute;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,7 +32,7 @@ public class ServerIT {
 
   @SetUpRoute
   public static void routing(HttpRouting.Builder routing) {
-    Server.routing(Objects.requireNonNull(routing));
+    Server.routing(Objects.requireNonNull(routing), Path.of("."), 5_000);
   }
 
   @Test

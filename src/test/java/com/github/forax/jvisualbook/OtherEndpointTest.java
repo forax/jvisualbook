@@ -14,6 +14,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public final class OtherEndpointTest {
 
   @BeforeAll
   static void startServer() {
-    server = Server.start(8084);
+    server = Server.start(8084, Path.of("."), 5_000);
   }
 
   @AfterAll

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +31,8 @@ public class ServerTest {
 
   @SetUpRoute
   public static void routing(HttpRouting.Builder routing) {
-    Server.routing(Objects.requireNonNull(routing));
+    Objects.requireNonNull(routing);
+    Server.routing(routing, Path.of("."), 5_000);
   }
 
   @Test

@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,7 @@ public final class CodeEndpointIT {
 
   @BeforeAll
   public static void startServer() {
-    server = Server.start(8083);
+    server = Server.start(8083, Path.of("."), 5_000);
   }
 
   @AfterAll

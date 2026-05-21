@@ -12,6 +12,7 @@ import io.helidon.webserver.staticcontent.StaticContentFeature;
 import java.io.IOException;
 import java.io.ObjectInputFilter;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -45,21 +46,20 @@ import java.util.Map;
 ///
 /// ## Entry points
 ///
-/// The application entry point is [#main], which starts the server on port
-/// `8080` bound to `localhost`. [#start] is the lower-level method used in
-/// tests to start the server on an arbitrary port.
+/// The application entry point is [#main], which starts the server bound to `localhost`.
+/// [#start(int, Path, int)] is the lower-level method used to start the server
+/// on an arbitrary port, with a directory to scan and a specified timeout in milliseconds.
+///
+/// ## Recognized command line options:
+/// - `--port <port>`   TCP port (default: 8080)
+/// - `--dir <path>`    Directory for `.jsh` chapters (default: `.`)
+/// - `--timeout <ms>`  JShell timeout in milliseconds (default: 5000)
+/// - `--help`          Print help and exit
 ///
 /// @see DocumentParser
 /// @see JShellRunner
 /// @see Model
 public final class Server {
-
-  /// The maximum number of seconds JShell is allowed to evaluate a [Model.Program]
-  /// request before being forcibly stopped.
-  ///
-  /// @see JShellRunner#evaluate
-  private static final int TIMEOUT_SECONDS = 5;
-
   /// This class is a utility class.
   private Server() {
     throw new AssertionError();
@@ -83,10 +83,9 @@ public final class Server {
     return target;
   }
 
-  /// Returns a sorted list of all chapters available in the current working
-  /// directory.
-  private static List<Model.Chapter> allChapters() throws IOException {
-    try (var files = Files.list(Path.of("."))) {
+  /// Returns a sorted list of all chapters available in `dir`.
+  private static List<Model.Chapter> allChapters(Path dir) throws IOException {
+    try (var files = Files.list(dir)) {
       return files
           .map(file -> file.getFileName().toString())
           .filter(name -> name.endsWith(".jsh"))
@@ -102,43 +101,22 @@ public final class Server {
     return DocumentParser.parse(path);
   }
 
-  /// Evaluates `code` by delegating to [JShellRunner#evaluate] with the
-  /// server-wide [#TIMEOUT_SECONDS] limit.
-  private static Model.Execution executeProgram(Model.Program program) throws InterruptedException {
-    return JShellRunner.evaluate(program, TIMEOUT_SECONDS);
+  /// Evaluates `code` by delegating to [JShellRunner#evaluate] with `timeoutMillis`.
+  private static Model.Execution executeProgram(Model.Program program, int timeoutMillis) throws InterruptedException {
+    return JShellRunner.evaluate(program, timeoutMillis);
   }
 
-  /// Registers all HTTP routes on `routing`.
+  /// Registers all HTTP routes on `routing`, serving chapters from `dir` with
+  /// the given `timeoutMillis`.
   ///
-  /// This method is package-private so tests can call it directly
-  /// without starting a real server via [#start].
-  ///
-  /// ### `GET /api/chapter`
-  ///
-  /// Returns a JSON array of [Model.Chapter] objects, one per `.jsh` file found
-  /// in the current working directory, sorted alphabetically.
-  ///
-  /// ### `GET /api/chapter/{filename}`
-  ///
-  /// Parses the `.jsh` file whose stem matches `filename` and returns it as a
-  /// JSON [Model.Document].
-  ///
-  /// ### `POST /api/code`
-  ///
-  /// Accepts a JSON [Model.Program] body, evaluates it via [JShellRunner], and
-  /// returns a JSON [Model.Execution].
-  ///
-  /// ### `GET /images/{filename}`
-  ///
-  /// Serves image files from the `./images/` directory relative to the working
-  /// directory.
-  ///
-  /// @param routing the routing builder to register routes on; must not be `null`
-  static void routing(HttpRouting.Builder routing) {
+  /// @param routing       the routing builder to register routes on; must not be `null`
+  /// @param dir           the directory to scan for `.jsh` chapter files
+  /// @param timeoutMillis the JShell evaluation timeout in milliseconds
+  static void routing(HttpRouting.Builder routing, Path dir, int timeoutMillis) {
     routing
         .get("/api/chapter", (_, res) -> {
           try {
-            res.send(allChapters());
+            res.send(allChapters(dir));
           } catch (IOException e) {
             res.status(Status.NOT_FOUND_404)
                 .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
@@ -146,7 +124,7 @@ public final class Server {
         })
         .get("/api/chapter/{filename}", (req, res) -> {
           var filename = req.path().pathParameters().get("filename");
-          var target = validatePath(Path.of("."), filename + ".jsh");
+          var target = validatePath(dir, filename + ".jsh");
           if (target == null) {
             res.status(Status.FORBIDDEN_403).send();
             return;
@@ -160,7 +138,7 @@ public final class Server {
         })
         .post("/api/code", (req, res) -> {
           var program = req.content().as(Model.Program.class);
-          var execution = executeProgram(program);
+          var execution = executeProgram(program, timeoutMillis);
           res.send(execution);
         })
         .get("/images/{filename}", (req, res) -> {
@@ -172,7 +150,7 @@ public final class Server {
                 .send(Map.of("extension", extractExtension(filename)));
             return;
           }
-          var target = validatePath(Path.of("images"), filename);
+          var target = validatePath(dir.resolve("images"), filename);
           if (target == null) {
             res.status(Status.FORBIDDEN_403).send();
             return;
@@ -194,12 +172,14 @@ public final class Server {
         });
   }
 
-  /// Starts the Helidon web server on the given `port`, bound to `localhost`,
-  /// and blocks until it is ready to accept connections.
+  /// Starts the Helidon web server bound to `localhost`, on the given `port`,
+  /// serving chapters from `dir`, and blocks until it is ready to accept connections.
   ///
-  /// @param port the TCP port to listen on
-  /// @return the running [WebServer] instance; never `null`
-  static WebServer start(int port) {
+  /// @param port          the TCP port to listen on
+  /// @param dir           the directory to scan for `.jsh` chapter files
+  /// @param timeoutMillis the JShell evaluation timeout in milliseconds
+  /// @return the running [WebServer] instance
+  static WebServer start(int port, Path dir, int timeoutMillis) {
     if (ObjectInputFilter.Config.getSerialFilter() == null) {
       ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
     }
@@ -216,16 +196,98 @@ public final class Server {
                 .context("/"))
             .build()
         )
-        .routing(Server::routing)
+        .routing(routing -> routing(routing, dir, timeoutMillis))
         .build()
         .start();
   }
 
-  /// Starts the server on port `8080` bound to `localhost` and
-  /// serves chapters from the current working directory.
-  ///
-  /// The server runs until the process is terminated.
-  static void main() {
-    start(8080);
+  /// Exit with a message and prints the Help.
+  private static RuntimeException exitWith(String message) {
+    System.err.println(message);
+    System.err.println();
+    System.err.print("""
+      Usage: java -jar jvisualbook.jar [OPTIONS]
+
+      Options:
+        --port <port>       TCP port to listen on (default: 8080)
+        --dir <path>        Directory to scan for .jsh chapter files (default: .)
+        --timeout <ms>      JShell evaluation timeout in milliseconds (default: 5000)
+        --help              Show this help message and exit
+
+      Examples:
+        java -jar jvisualbook.jar
+        java -jar jvisualbook.jar --port 9090 --dir /home/user/notebooks
+        java -jar jvisualbook.jar --timeout 10000
+      """);
+    System.exit(1);
+    throw new AssertionError();
+  }
+
+  /// Configuration derived from CLI arguments.
+  private record Config(int port, Path dir, int timeoutMillis) {}
+
+  /// Parses `args` and returns a [Config], or prints a help/error
+  /// message and calls [System#exit] if the arguments are invalid.
+  private static Config parseConfig(String[] args) {
+    var port = 8080;
+    var dir = Path.of(".");
+    var timeoutMillis = 5_000;
+
+    for (var i = 0; i < args.length; i++) {
+      switch (args[i]) {
+        case "--help" -> throw exitWith("Help:");
+        case "--port" -> {
+          if (i + 1 >= args.length) {
+            throw exitWith("Error: --port requires a value");
+          }
+          var portText = args[++i];
+          try {
+            port = Integer.parseInt(portText);
+          } catch (NumberFormatException _) {
+            throw exitWith("Error: --port value must be an integer, got: " + portText);
+          }
+          if (port < 1 || port > 65535) {
+            throw exitWith("Error: --port value must be between 1 and 65535, got: " + port);
+          }
+        }
+        case "--dir" -> {
+          if (i + 1 >= args.length) {
+            throw exitWith("Error: --dir requires a value");
+          }
+          var dirText = args[++i];
+          try {
+            dir = Path.of(dirText);
+          } catch (InvalidPathException _) {
+            throw exitWith("Error: --dir value is not a valid path: " + dirText);
+          }
+          if (!Files.isDirectory(dir)) {
+            throw exitWith("Error: --dir path does not exist or is not a directory: " + dirText);
+          }
+        }
+        case "--timeout" -> {
+          if (i + 1 >= args.length) {
+            throw exitWith("Error: --timeout requires a value");
+          }
+          var timeoutText = args[++i];
+          try {
+            timeoutMillis = Integer.parseInt(timeoutText);
+          } catch (NumberFormatException _) {
+            throw exitWith("Error: --timeout value must be an integer, got: " + timeoutText);
+          }
+          if (timeoutMillis <= 0) {
+            throw exitWith("Error: --timeout value must be positive, got: " + timeoutMillis);
+          }
+        }
+        default -> throw exitWith("Error: Unknown option: " + args[i]);
+      }
+    }
+
+    return new Config(port, dir, timeoutMillis);
+  }
+
+  /// Parse the command-line arguments and starts the server.
+  static void main(String[] args) {
+    var config = parseConfig(args);
+    start(config.port(), config.dir(), config.timeoutMillis());
   }
 }
