@@ -199,6 +199,7 @@
                                         <exclude>META-INF/helidon/config-metadata.json</exclude>
                                         <exclude>META-INF/versions/9/module-info.class</exclude>
                                         <exclude>META-INF/services/com.fasterxml.jackson.databind.Module</exclude>
+                                        <exclude>META-INF/services/io.helidon.common.context.spi.DataPropagationProvider</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
