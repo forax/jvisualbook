@@ -3,14 +3,11 @@
     margin: 0;
 }
 
-/* Only active during printing */
 @media print {
-    /* Hide everything on the page */
     body > * {
         display: none !important;
     }
 
-    /* Show only the hidden print container */
     #print-slides-root {
         display: block !important;
     }
@@ -18,14 +15,16 @@
     #print-slides-root .print-slide {
         page-break-after: always;
         break-after: page;
-        width: 100%;
-        min-height: 100vh;
+        width: 297mm;
+        height: 210mm;
         box-sizing: border-box;
-        padding: 3rem 4rem;
+        padding: 14mm 18mm;
         display: flex;
         flex-direction: column;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         color: #34495e;
+        font-size: 13pt;
+        overflow: hidden;
     }
 
     #print-slides-root .print-slide:last-child {
@@ -34,46 +33,48 @@
     }
 
     .print-slide-title {
-        font-size: 1.8rem;
+        font-size: 22pt;
         font-weight: 700;
         color: #2c3e50;
         border-bottom: 3px solid #3498db;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1.5rem;
+        padding-bottom: 3mm;
+        margin-bottom: 6mm;
+        flex-shrink: 0;
     }
 
     .print-slide-body {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        font-size: 1rem;
-        line-height: 1.6;
+        gap: 4mm;
+        line-height: 1.5;
+        overflow: hidden;
     }
 
     .print-slide-body p {
         margin: 0;
         color: #555;
+        font-size: 14pt;
     }
 
     .print-slide-body pre {
         background: #f8f9fa;
         border: 1px solid #ddd;
         border-radius: 4px;
-        padding: 1rem;
-        font-size: 0.85rem;
+        padding: 3mm 4mm;
+        font-size: 12pt;
         white-space: pre-wrap;
         word-break: break-word;
         margin: 0;
         font-family: 'Courier New', Courier, monospace;
+        flex-shrink: 0;
     }
 
-    /* Output blocks */
     .print-slide-body .print-output {
         color: #27ae60;
         font-family: 'Courier New', Courier, monospace;
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
+        font-size: 12pt;
+        padding: 2mm 4mm;
         border-left: 3px solid #27ae60;
         background: #f0fff4;
     }
@@ -82,5 +83,21 @@
         color: #e74c3c;
         border-left-color: #e74c3c;
         background: #fff5f5;
+    }
+
+    .print-slide-body h1, .print-slide-body h2, .print-slide-body h3 {
+        font-size: 16pt;
+        margin: 0 0 2mm;
+        color: #555;
+    }
+
+    .print-slide-body ul, .print-slide-body ol {
+        margin: 0;
+        padding-left: 6mm;
+        font-size: 14pt;
+    }
+
+    .print-slide-body li {
+        margin-bottom: 1.5mm;
     }
 }
