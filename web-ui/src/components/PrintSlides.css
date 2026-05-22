@@ -4,11 +4,11 @@
 }
 
 @media print {
-    body > * {
+    body.printing > * {
         display: none !important;
     }
 
-    #print-slides-root {
+    body.printing #print-slides-root {
         display: block !important;
     }
 

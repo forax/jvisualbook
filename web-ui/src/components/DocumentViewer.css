@@ -113,8 +113,8 @@
     }
 
     .document-viewer {
+        padding: 2rem;
         box-shadow: none;
-        padding: 0;
     }
 
     .section {
