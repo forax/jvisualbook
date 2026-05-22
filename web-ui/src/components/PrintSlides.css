@@ -100,4 +100,13 @@
     .print-slide-body li {
         margin-bottom: 1.5mm;
     }
+
+    .print-slide-body img,
+    .print-slide-title img {
+        max-width: 100%;
+        max-height: 120mm;
+        width: auto;
+        height: auto;
+        display: block;
+    }
 }
