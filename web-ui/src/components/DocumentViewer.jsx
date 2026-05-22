@@ -129,7 +129,7 @@ function DocumentViewer({ chapterName }) {
     if (content.kind === "CODE") {
       return (
         <div key={content.id}>
-          <pre className="monaco-editor-text">{content.text}</pre>
+          <pre className="editor-text">{content.text}</pre>
           <MonacoEditorWrapper
             code={content.text}
             onChange={val => handleCodeChange(content.id, val)}

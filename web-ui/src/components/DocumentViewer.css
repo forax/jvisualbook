@@ -60,7 +60,7 @@
     padding-left: 1rem;
 }
 
-.monaco-editor-text {
+.editor-text {
     display: none;
 }
 
@@ -113,27 +113,40 @@
     }
 
     .document-viewer {
-        padding: 2rem;
         box-shadow: none;
     }
 
+    .document-content {
+        padding-top: 0.5rem;
+    }
+
     .section {
+        page-break-before: auto;
         page-break-inside: avoid;
         break-inside: avoid;
+        padding-top: 1rem;
+        margin: 1rem;
+        border-bottom: none;
     }
 
     .monaco-editor-wrapper {
         display: none !important;
     }
 
-    .monaco-editor-text {
+    .editor-text {
         display: block;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 3mm 4mm;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 1rem;
     }
 
     .text-output {
         border-left: 3px solid #27ae60;
         padding: 0.5rem 1rem;
-        font-family: 'Courier New', monospace;
+        font-family: 'Courier New', Courier, monospace;
         font-size: 0.85rem;
         white-space: pre-wrap;
         word-break: break-word;
