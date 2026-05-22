@@ -128,11 +128,13 @@ function DocumentViewer({ chapterName }) {
     }
     if (content.kind === "CODE") {
       return (
-        <MonacoEditorWrapper
-          key={content.id}
-          code={content.text}
-          onChange={val => handleCodeChange(content.id, val)}
-        />
+        <div key={content.id}>
+          <pre className="monaco-editor-text">{content.text}</pre>
+          <MonacoEditorWrapper
+            code={content.text}
+            onChange={val => handleCodeChange(content.id, val)}
+          />
+        </div>
       );
     }
     if (content.kind === "OUTPUT") {

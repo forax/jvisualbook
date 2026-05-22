@@ -95,3 +95,20 @@ main {
 .no-chapters button:hover {
     background-color: #2980b9;
 }
+
+@media print {
+    .app-header {
+        background-color: #2c3e50 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 0.5rem 1rem;
+    }
+
+    .app-header nav {
+        display: none !important;
+    }
+
+    main {
+        padding: 0;
+    }
+}
