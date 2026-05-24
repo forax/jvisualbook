@@ -75,22 +75,6 @@
     color: #555;
 }
 
-.text-content code {
-    background-color: #f8f9fa;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-    color: #e74c3c;
-}
-
-.text-content strong {
-    color: #2c3e50;
-}
-
-.text-content em {
-    color: #7f8c8d;
-}
-
 .text-content img,
 .section-title img,
 .slide-title img,
