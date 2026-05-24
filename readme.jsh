@@ -78,7 +78,7 @@ IO.println("Hello from JVisualBook!");
 // - bullet lists (like this one)
 // - `> blockquotes`
 // - links (`[text](url)`)
-// - images (`![alt text](images/foo.png)`) (only from the local folder `images`)
+// - images (`![alt text](images/foo.png)`), restricted to local folder `images`
 // - fenced code blocks (for non-executable examples)
 
 // A blank line between comment blocks starts a new Markdown paragraph.
