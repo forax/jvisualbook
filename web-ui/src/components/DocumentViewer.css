@@ -1,3 +1,8 @@
+@page document-viewer-page {
+    size: A4;
+    margin: 12mm;
+}
+
 .document-viewer {
     background-color: white;
     padding: 2rem;
@@ -107,6 +112,10 @@
 }
 
 @media print {
+    .document-viewer {
+        page: document-viewer-page;
+    }
+
     .document-toolbar,
     .editor-resize-handle {
         display: none !important;

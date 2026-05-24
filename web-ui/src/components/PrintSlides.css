@@ -1,4 +1,4 @@
-@page {
+@page slide-page {
     size: A4 landscape;
     margin: 0;
 }
@@ -13,6 +13,7 @@
     }
 
     #print-slides-root .print-slide {
+        page: slide-page;
         page-break-after: always;
         break-after: page;
         width: 297mm;
