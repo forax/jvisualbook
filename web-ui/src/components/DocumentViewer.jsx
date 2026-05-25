@@ -59,18 +59,6 @@ function DocumentViewer({ chapterName }) {
   const [slideMode, setSlideMode] = useState(false);
   const codeAbortController = useRef(null);
 
-  useEffect(() => {
-    loadDocument();
-  }, [chapterName]);
-
-  useEffect(() => {
-    if (!loadedDocument) return;
-    const timer = setTimeout(async () => {
-      await runCode(loadedDocument);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [loadedDocument]);
-
   const loadDocument = async () => {
     setLoading(true);
     setError(null);
@@ -145,6 +133,18 @@ function DocumentViewer({ chapterName }) {
       );
     }
   };
+
+  useEffect(() => {
+    loadDocument();
+  }, [chapterName]);
+
+  useEffect(() => {
+    if (!loadedDocument) return;
+    const timer = setTimeout(async () => {
+      await runCode(loadedDocument);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [loadedDocument]);
 
   if (loading) {
     return (

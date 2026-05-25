@@ -1,7 +1,8 @@
 {
   "name": "jvisualbook-web",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "dompurify": "^3.4.3",
@@ -10,13 +11,18 @@
     "react-markdown": "^10.1.0"
   },
   "devDependencies": {
+    "vite": "^8.0.10",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.10"
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react-hooks": "^7.1.1"
   },
   "scripts": {
     "copy-monaco": "mkdir -p public && rm -rf public/vs && cp -r node_modules/monaco-editor/min/vs public",
     "prebuild": "npm run copy-monaco",
     "build": "vite build",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "lint": "eslint src"
   }
 }

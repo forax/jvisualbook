@@ -8,10 +8,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadChapters();
-  }, []);
-
   const loadChapters = async () => {
     try {
       setLoading(true);
@@ -27,6 +23,10 @@ function App() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadChapters();
+  }, []);
 
   if (loading) {
     return (
