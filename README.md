@@ -31,7 +31,7 @@ or use a [prebuild release](https://github.com/forax/jvisualbook/releases/latest
 then run it from the folder containing your `.jsh` files:
 
 ```bash
-java -jar jvisualbook-1.2.0.jar
+java -jar jvisualbook-1.2.1.jar
 ```
 
 Then open:
