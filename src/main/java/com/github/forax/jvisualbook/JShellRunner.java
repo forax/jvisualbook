@@ -133,11 +133,60 @@ public final class JShellRunner {
   private static Model.Execution evaluateInShell(JShell shell, ByteArrayOutputStream output, Model.Program program) {
     var evaluations = new ArrayList<Model.Evaluation>();
     for (var snippet : program.snippets()) {
-      var evaluation = evaluateSnippet(shell, output, snippet);
+      Model.Evaluation evaluation;
+      if (snippet.code().startsWith("/env ")) {
+        evaluation = evaluateEnvironment(shell, snippet);
+      } else {
+        evaluation = evaluateSnippet(shell, output, snippet);
+      }
       evaluations.add(evaluation);
       output.reset();
     }
     return new Model.Execution(evaluations);
+  }
+
+  /// Evaluates a [Model.Snippet] consisting entirely of `/env` directives,
+  /// applying each one to the live JShell session.
+  ///
+  /// Currently only `--class-path <path>` is supported.
+  ///
+  /// Note that directives are applied line by line: if a later line fails,
+  /// earlier directives in the same snippet have already mutated the shell.
+  private static Model.Evaluation evaluateEnvironment(JShell shell, Model.Snippet snippet) {
+    for (var line : snippet.code().lines().toList()) {
+      if (!line.startsWith("/env ")) {
+        return new Model.Evaluation(Model.Evaluation.Status.ERROR,
+            "a snippet that starts with /env should only contain environment directives, got: " + line);
+      }
+
+      var parts = line.substring("/env ".length()).strip();
+      var nextSpace = parts.indexOf(' ');
+      if (nextSpace == -1) {
+        return new Model.Evaluation(Model.Evaluation.Status.ERROR,
+            "missing argument for environment directive: " + line);
+      }
+
+      var command = parts.substring(0, nextSpace);
+      var argument = parts.substring(nextSpace + 1).strip();
+      if (argument.isEmpty()) {
+        return new Model.Evaluation(Model.Evaluation.Status.ERROR,
+            "empty argument for environment directive: " + line);
+      }
+
+      switch (command) {
+        case "--class-path" -> shell.addToClasspath(argument);
+        case "--module-path", "--add-modules" -> {
+          return new Model.Evaluation(Model.Evaluation.Status.ERROR,
+              command + " is not supported.");
+        }
+        default -> {
+          return new Model.Evaluation(Model.Evaluation.Status.ERROR,
+              "unknown environment directive: " + command);
+        }
+      }
+    }
+
+    return new Model.Evaluation(Model.Evaluation.Status.SUCCESS, "");
   }
 
   /// Evaluates a single [Model.Snippet] and returns its [Model.Evaluation].

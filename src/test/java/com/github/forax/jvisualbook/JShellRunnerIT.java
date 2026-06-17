@@ -1,7 +1,17 @@
 package com.github.forax.jvisualbook;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.lang.classfile.ClassFile;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
+import java.lang.reflect.AccessFlag;
+import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 
@@ -348,5 +358,148 @@ public final class JShellRunnerIT {
     var eval = execution.evaluations().getFirst();
     assertEquals(Model.Evaluation.Status.SUCCESS, eval.status());
     assertEquals("ok\n", eval.text());
+  }
+
+
+  // --- environment ---
+
+  private static void createSyntheticClass(Path dir) throws IOException {
+    var packageFolder = dir.resolve("foo");
+    Files.createDirectories(packageFolder);
+    var path = packageFolder.resolve("Bar.class");
+    var classDesc = ClassDesc.of("foo", "Bar");
+    ClassFile.of()
+        .buildTo(path, classDesc, classBuilder -> classBuilder
+            .withFlags(AccessFlag.PUBLIC, AccessFlag.SUPER)
+            .withSuperclass(ConstantDescs.CD_Object)
+            .withMethod("method",
+                MethodTypeDesc.of(ConstantDescs.CD_int),
+                Modifier.PUBLIC | Modifier.STATIC,
+                mb -> mb.withCode(codeBuilder -> codeBuilder
+                    .iconst_1()
+                    .ireturn()
+                )
+            )
+        );
+  }
+
+  @Test
+  public void evaluateEnvClassPathSucceeds() throws InterruptedException {
+    var env = new Model.Snippet("/env --class-path .");
+    var code = new Model.Snippet("""
+        IO.println("ok");
+        """);
+    var program = new Model.Program(List.of(env, code));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    var evaluations = execution.evaluations();
+    assertEquals(2, evaluations.size());
+    assertEquals(Model.Evaluation.Status.SUCCESS, evaluations.get(1).status());
+    assertEquals("ok\n", evaluations.get(1).text());
+  }
+
+  @Test
+  public void evaluateEnvClassPathIsVisibleToSubsequentSnippet(@TempDir Path dir) throws IOException, InterruptedException {
+    createSyntheticClass(dir);
+    var env = new Model.Snippet("/env --class-path " + dir);
+    var code = new Model.Snippet("import foo.Bar");
+    var program = new Model.Program(List.of(env, code));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    var evaluation = execution.evaluations();
+    assertEquals(2, evaluation.size());
+    assertEquals(Model.Evaluation.Status.SUCCESS, evaluation.get(0).status());
+    assertEquals("", evaluation.get(0).text());
+    assertEquals(Model.Evaluation.Status.SUCCESS, evaluation.get(1).status());
+    assertEquals("", evaluation.get(1).text());
+  }
+
+  @Test
+  public void evaluateEnvClassCanBeCalledBySubsequentSnippet(@TempDir Path dir) throws IOException, InterruptedException {
+    createSyntheticClass(dir);
+    var env = new Model.Snippet("/env --class-path " + dir);
+    var code = new Model.Snippet("IO.println(foo.Bar.method())");
+    var program = new Model.Program(List.of(env, code));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    var evaluation = execution.evaluations();
+    assertEquals(2, evaluation.size());
+    assertEquals(Model.Evaluation.Status.SUCCESS, evaluation.get(0).status());
+    assertEquals("", evaluation.get(0).text());
+    assertEquals(Model.Evaluation.Status.SUCCESS, evaluation.get(1).status());
+    assertEquals("1\n", evaluation.get(1).text());
+  }
+
+  @Test
+  public void evaluateEnvUnknownDirectiveReturnsError() throws InterruptedException {
+    var snippet = new Model.Snippet("/env --unknown-option foo");
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
+  }
+
+  @Test
+  public void evaluateEnvUnknownDirectiveErrorMentionsDirective() throws InterruptedException {
+    var snippet = new Model.Snippet("/env --unknown-option foo");
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertTrue(execution.evaluations().getFirst().text().contains("--unknown-option"));
+  }
+
+  @Test
+  public void evaluateEnvModulePathReturnsError() throws InterruptedException {
+    var snippet = new Model.Snippet("/env --module-path .");
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
+  }
+
+  @Test
+  public void evaluateEnvAddModulesReturnsError() throws InterruptedException {
+    var snippet = new Model.Snippet("/env --add-modules java.sql");
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
+  }
+
+  @Test
+  public void evaluateEnvMissingArgumentReturnsError() throws InterruptedException {
+    var snippet = new Model.Snippet("/env --class-path");
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
+  }
+
+  @Test
+  public void evaluateEnvNonEnvLineReturnsError() throws InterruptedException {
+    var snippet = new Model.Snippet("""
+        /env --class-path .
+        int x = 1;
+        """);
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().getFirst().status());
+  }
+
+  @Test
+  public void evaluateEnvErrorDoesNotAffectSubsequentSnippets() throws InterruptedException {
+    var env = new Model.Snippet("/env --unknown-option foo");
+    var code = new Model.Snippet("""
+        IO.println("ok");
+        """);
+    var program = new Model.Program(List.of(env, code));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(2, execution.evaluations().size());
+    assertEquals(Model.Evaluation.Status.ERROR, execution.evaluations().get(0).status());
+    assertEquals(Model.Evaluation.Status.SUCCESS, execution.evaluations().get(1).status());
+    assertEquals("ok\n", execution.evaluations().get(1).text());
+  }
+
+  @Test
+  public void evaluateEnvMultipleLinesSucceeds() throws InterruptedException {
+    var snippet = new Model.Snippet("""
+        /env --class-path .
+        /env --class-path .
+        """);
+    var program = new Model.Program(List.of(snippet));
+    var execution = JShellRunner.evaluate(program, DEFAULT_TIMEOUT_MILLIS);
+    assertEquals(Model.Evaluation.Status.SUCCESS, execution.evaluations().getFirst().status());
   }
 }
