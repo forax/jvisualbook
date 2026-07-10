@@ -132,3 +132,20 @@ JVisualBook assumes a trusted local user:
 - Snippets can consume arbitrary CPU and memory up to the 5-second execution timeout.
 - Snippets may access files, environment variables, and network resources available to the Java process.
 - The app must not be deployed as a shared or public-facing service.
+
+
+## Build
+
+You can build your notebook by using the following Maven command: 
+
+```shell
+mvn clean package
+```
+
+It builds a JAR file with the name `jvisualbook-<version>.jar` in the `target` directory, where `version` is the version of your Maven project.
+
+Then you can run `java -jar target/jvisualbook-<version>.jar` to start the web UI, and connect to it at the following default URL: `http://localhost:8080`.
+
+If you are running the application from an IDE, you can directly execute the `target/jvisualbook-<version>.jar` file from your IDE. 
+
+In both cases, the application will look for any `.jsh` file at the root of the project, and will open the first one it finds. By defaut it opens the `readme.jsh` file. 

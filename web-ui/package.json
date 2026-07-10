@@ -19,10 +19,10 @@
     "eslint-plugin-react-hooks": "^7.1.1"
   },
   "scripts": {
-    "copy-monaco": "mkdir -p public && rm -rf public/vs && cp -r node_modules/monaco-editor/min/vs public",
+    "copy-monaco": "mkdir public && rm -rf public/vs && cp -r node_modules/monaco-editor/min/vs public",
     "prebuild": "npm run copy-monaco",
     "build": "vite build",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist public",
     "lint": "eslint src"
   }
 }
