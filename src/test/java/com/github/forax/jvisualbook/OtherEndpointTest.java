@@ -26,8 +26,10 @@ public final class OtherEndpointTest {
   private static final ObjectMapper MAPPER = new ObjectMapper()
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+  private static final int PORT = 8084;
+  private static final String BASE_URL = "http://localhost:" + PORT;
+
   private static final HttpClient HTTP = HttpClient.newHttpClient();
-  private static final String BASE_URL = "http://localhost:8084";
 
   record Chapter(String name) {}
   record Section(String title, List<?> contents) {}
@@ -39,7 +41,7 @@ public final class OtherEndpointTest {
 
   @BeforeAll
   static void startServer() {
-    server = Server.start(8084, Path.of("."), 5_000);
+    server = Server.start(PORT, Path.of("."), 5_000);
   }
 
   @AfterAll

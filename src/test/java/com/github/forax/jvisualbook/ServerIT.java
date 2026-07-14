@@ -3,6 +3,7 @@ package com.github.forax.jvisualbook;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.helidon.common.media.type.MediaTypes;
+import io.helidon.http.HeaderNames;
 import io.helidon.http.Status;
 import io.helidon.webclient.http1.Http1Client;
 import io.helidon.webserver.http.HttpRouting;
@@ -21,18 +22,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RoutingTest
 public class ServerIT {
+
   private static final ObjectMapper MAPPER = new ObjectMapper()
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+  private static final int FAKE_PORT = 8080;
+  private static final String BASE_URL = "http://localhost:" + FAKE_PORT;
 
   private final Http1Client client;
 
   public ServerIT(Http1Client client) {
     this.client = Objects.requireNonNull(client);
+    super();
   }
 
   @SetUpRoute
   public static void routing(HttpRouting.Builder routing) {
-    Server.routing(Objects.requireNonNull(routing), Path.of("."), 5_000);
+    Objects.requireNonNull(routing);
+    Server.routing(routing, FAKE_PORT, Path.of("."), 5_000);
   }
 
   @Test
@@ -46,6 +53,7 @@ public class ServerIT {
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
+        .header(HeaderNames.ORIGIN, BASE_URL)
         .submit(body)) {
       assertEquals(Status.OK_200, response.status());
       var execution = MAPPER.readValue(response.entity().as(String.class), Execution.class);
@@ -65,6 +73,7 @@ public class ServerIT {
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
+        .header(HeaderNames.ORIGIN, BASE_URL)
         .submit(body)) {
       assertEquals(Status.OK_200, response.status());
       var execution = MAPPER.readValue(response.entity().as(String.class), Execution.class);
@@ -83,6 +92,7 @@ public class ServerIT {
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
+        .header(HeaderNames.ORIGIN, BASE_URL)
         .submit(body)) {
       assertEquals(Status.OK_200, response.status());
       var execution = MAPPER.readValue(response.entity().as(String.class), Execution.class);
@@ -103,6 +113,7 @@ public class ServerIT {
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
+        .header(HeaderNames.ORIGIN, BASE_URL)
         .submit(body)) {
       assertEquals(Status.OK_200, response.status());
       var execution = MAPPER.readValue(response.entity().as(String.class), Execution.class);
@@ -121,6 +132,7 @@ public class ServerIT {
 
     try (var response = client.post("/api/code")
         .contentType(MediaTypes.APPLICATION_JSON)
+        .header(HeaderNames.ORIGIN, BASE_URL)
         .submit(body)) {
       assertEquals(Status.OK_200, response.status());
       var execution = MAPPER.readValue(response.entity().as(String.class), Execution.class);

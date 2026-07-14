@@ -2,6 +2,7 @@ package com.github.forax.jvisualbook;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.helidon.http.HeaderNames;
 import io.helidon.webserver.WebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,6 +57,7 @@ public final class CodeEndpointIT {
     var request = HttpRequest.newBuilder()
         .uri(URI.create(BASE_URL + "/api/code"))
         .header("Content-Type", "application/json")
+        .header("Origin", BASE_URL)
         .POST(HttpRequest.BodyPublishers.ofString(body))
         .build();
     HttpResponse<String> response;

@@ -7,6 +7,7 @@ import io.helidon.http.media.MediaContext;
 import io.helidon.http.media.jackson.JacksonSupport;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.http.HttpRouting;
+import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 
 import java.io.IOException;
@@ -83,6 +84,14 @@ public final class Server {
     return target;
   }
 
+  /// Mitigates cross-site request forgery from malicious web pages.
+  /// @return `true` if the request should be allowed
+  private static boolean isOriginAllowed(ServerRequest req, int port) {
+    var origin = req.headers().first(HeaderNames.ORIGIN).orElse(null);
+    var expectedOrigin = "http://localhost:" + port;
+    return expectedOrigin.equals(origin);
+  }
+
   /// Returns a sorted list of all chapters available in `dir`.
   private static List<Model.Chapter> allChapters(Path dir) throws IOException {
     try (var files = Files.list(dir)) {
@@ -110,9 +119,10 @@ public final class Server {
   /// the given `timeoutMillis`.
   ///
   /// @param routing       the routing builder to register routes on; must not be `null`
+  /// @param port          the TCP port to listen on
   /// @param dir           the directory to scan for `.jsh` chapter files
   /// @param timeoutMillis the JShell evaluation timeout in milliseconds
-  static void routing(HttpRouting.Builder routing, Path dir, int timeoutMillis) {
+  static void routing(HttpRouting.Builder routing, int port, Path dir, int timeoutMillis) {
     routing
         .get("/api/chapter", (_, res) -> {
           try {
@@ -137,6 +147,10 @@ public final class Server {
           }
         })
         .post("/api/code", (req, res) -> {
+          if (!isOriginAllowed(req, port)) {
+            res.status(Status.FORBIDDEN_403).send();
+            return;
+          }
           var program = req.content().as(Model.Program.class);
           var execution = executeProgram(program, timeoutMillis);
           res.send(execution);
@@ -184,6 +198,7 @@ public final class Server {
       ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
     }
     System.setProperty("helidon.serialFilter.failure.action", "ignore");
+
     return WebServer.builder()
         .port(port)
         .host("localhost")
@@ -196,7 +211,7 @@ public final class Server {
                 .context("/"))
             .build()
         )
-        .routing(routing -> routing(routing, dir, timeoutMillis))
+        .routing(routing -> routing(routing, port, dir, timeoutMillis))
         .build()
         .start();
   }

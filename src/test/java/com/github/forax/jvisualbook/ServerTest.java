@@ -23,16 +23,19 @@ public class ServerTest {
   private static final ObjectMapper MAPPER = new ObjectMapper()
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+  private static final int FAKE_PORT = 8080;
+
   private final Http1Client client;
 
   public ServerTest(Http1Client client) {
     this.client = Objects.requireNonNull(client);
+    super();
   }
 
   @SetUpRoute
   public static void routing(HttpRouting.Builder routing) {
     Objects.requireNonNull(routing);
-    Server.routing(routing, Path.of("."), 5_000);
+    Server.routing(routing, FAKE_PORT, Path.of("."), 5_000);
   }
 
   @Test
