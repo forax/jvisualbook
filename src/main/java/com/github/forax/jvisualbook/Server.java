@@ -12,6 +12,7 @@ import io.helidon.webserver.staticcontent.StaticContentFeature;
 
 import java.io.IOException;
 import java.io.ObjectInputFilter;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ import java.util.Map;
 /// | GET    | `/api/chapter`             | List all available chapters                     |
 /// | GET    | `/api/chapter/{filename}`  | Fetch the parsed document for a chapter         |
 /// | POST   | `/api/code`                | Evaluate a [Model.Program] object via JShell    |
-/// | GET    | `/images/{filename}`       | Serve an image file from `./images/`            |
+/// | GET    | `/images/{filename}`       | Serve an image file from `<dir>/images/`        |
 /// | GET    | `/**`                      | Static React front-end (classpath `/public`)    |
 ///
 /// All JSON serialisation and deserialisation is handled by
@@ -216,11 +217,16 @@ public final class Server {
         .start();
   }
 
-  /// Exit with a message and prints the Help.
+  /// Exit with code 1, prints a message and the Help on stderr.
   private static RuntimeException exitWith(String message) {
-    System.err.println(message);
-    System.err.println();
-    System.err.print("""
+    return exitWith(message, System.err, 1);
+  }
+
+  /// Exit with a message and prints the Help.
+  private static RuntimeException exitWith(String message, PrintStream out, int exitCode) {
+    out.println(message);
+    out.println();
+    out.print("""
       Usage: java -jar jvisualbook.jar [OPTIONS]
 
       Options:
@@ -234,7 +240,7 @@ public final class Server {
         java -jar jvisualbook.jar --port 9090 --dir /home/user/notebooks
         java -jar jvisualbook.jar --timeout 10000
       """);
-    System.exit(1);
+    System.exit(exitCode);
     throw new AssertionError();
   }
 
@@ -250,7 +256,7 @@ public final class Server {
 
     for (var i = 0; i < args.length; i++) {
       switch (args[i]) {
-        case "--help" -> throw exitWith("Help:");
+        case "--help" -> throw exitWith("Help:", System.out, 0);
         case "--port" -> {
           if (i + 1 >= args.length) {
             throw exitWith("Error: --port requires a value");
@@ -303,7 +309,7 @@ public final class Server {
   /// Parse the command-line arguments and starts the server.
   static void main(String[] args) {
     var config = parseConfig(args);
-    System.out.println("Starting server at http://localhost:" + config.port() +
+    IO.println("Starting server at http://localhost:" + config.port() +
         " with dir=" + config.dir() + ", timeout=" + config.timeoutMillis() + "ms");
     start(config.port(), config.dir(), config.timeoutMillis());
   }
