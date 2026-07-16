@@ -90,7 +90,7 @@ public final class JShellRunner {
   public static Model.Execution evaluate(Model.Program program, int timeoutMillis) throws InterruptedException{
     Objects.requireNonNull(program);
     if (timeoutMillis <= 0) {
-      throw new IllegalArgumentException("timeoutMs <= 0");
+      throw new IllegalArgumentException("timeoutMillis <= 0");
     }
     var output = new ByteArrayOutputStream();
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
