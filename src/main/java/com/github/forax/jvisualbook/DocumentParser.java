@@ -228,6 +228,7 @@ public final class DocumentParser {
         }
         case TEXT, CODE -> {
           if (!insideSection) {
+            // start section with empty title
             handler.start(LineKind.SECTION);
             handler.line(LineKind.SECTION, "");
             insideSection = true;
