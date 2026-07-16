@@ -94,11 +94,10 @@ public final class JShellRunner {
     }
     var output = new ByteArrayOutputStream();
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
-         var err = new PrintStream(output, true, StandardCharsets.UTF_8);
          var executor = Executors.newVirtualThreadPerTaskExecutor();
          var shell = JShell.builder()
              .out(out)
-             .err(err)
+             .err(out)
              .compilerOptions("--enable-preview", "--source=" + Runtime.version().feature())
              .remoteVMOptions("--enable-preview")
              .build()) {
