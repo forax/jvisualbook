@@ -1,5 +1,6 @@
 package com.github.forax.jvisualbook;
 
+import io.helidon.common.SerializationConfig;
 import io.helidon.common.media.type.MediaTypes;
 import io.helidon.http.HeaderNames;
 import io.helidon.http.Status;
@@ -195,10 +196,12 @@ public final class Server {
   /// @param timeoutMillis the JShell evaluation timeout in milliseconds
   /// @return the running [WebServer] instance
   static WebServer start(int port, Path dir, int timeoutMillis) {
-    if (ObjectInputFilter.Config.getSerialFilter() == null) {
-      ObjectInputFilter.Config.setSerialFilter(ObjectInputFilter.Config.createFilter("*"));
-    }
-    System.setProperty("helidon.serialFilter.failure.action", "ignore");
+    // JShell remote VM must be able to serialize any exceptions back
+    // to the JShellRunner
+    SerializationConfig.builder()
+        .onNoConfig(SerializationConfig.Action.IGNORE)
+        .build()
+        .configure();
 
     return WebServer.builder()
         .port(port)
