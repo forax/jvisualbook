@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from "remark-gfm";
 import { fetchChapterDocument, postCode } from '../services/api';
@@ -171,10 +171,11 @@ function DocumentViewer({ chapterName }) {
   }
 
   if (slideMode) {
+    const exitSlideMode = useCallback(() => setSlideMode(false), []);
     return (
       <SlideViewer
         doc={docToRender}
-        onExit={() => setSlideMode(false)}
+        onExit={exitSlideMode}
         renderContent={renderContent}
       />
     );
