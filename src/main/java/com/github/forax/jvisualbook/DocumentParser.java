@@ -90,7 +90,7 @@ public final class DocumentParser {
     String clean(String line) {
       return switch(this) {
         case BLANK, CODE -> line;
-        case TEXT, SECTION -> line.substring("// ".length());
+        case TEXT, SECTION -> line.equals("//") ? "" : line.substring("// ".length());
       };
     }
 
@@ -99,7 +99,7 @@ public final class DocumentParser {
       if (line.startsWith("// #")) {
         return SECTION;
       }
-      if (line.startsWith("// ")) {
+      if (line.equals("//") || line.startsWith("// ")) {
         return TEXT;
       }
       if (line.isBlank()) {
