@@ -27,7 +27,8 @@
 
 // ## Requirements
 
-// JVisualBook requires **Java 25 or newer** and a **browser from 2023+**.
+// JVisualBook requires **Java 25 or newer** and a modern browser
+// (Firefox, Chrome, or Safari released in 2023 or later).
 
 // ## How to start the server
 
@@ -49,18 +50,36 @@
 // # Anatomy of a .jsh file
 
 // A `.jsh` file is a plain JShell script with a simple convention:
-//   - Lines starting with `// #` are **section titles** (rendered as Markdown).
-//   - Lines starting with `// ` (note the space) are **text** (rendered as Markdown).
+//   - Lines starting with "// #" are **section titles** (rendered as Markdown).
+//   - Lines starting with `"// " (note the space) are **text** (rendered as Markdown).
 //   - Any other non-blank line is **code**.
 //   - Blank lines separate adjacent text and code blocks.
 
+// Here is an example:
+
+// ```text
+// // # Title
+//
+// // This is a text block
+// // using several lines.
+//
+// // ## Section
+//
+// //This is a code comment
+// IO.println("hello");    // this is code
+//
+// // This is another text block.
+// ```
+
 // ## Header and sections
 
-// Leading text lines (`// `) at the very top of the file are treated as a
-// file-level prologue and are **not** shown. You can use that prologue for a
-// title, a short description, or instructions for opening the file.
+// Leading text lines ("// ") at the very top of the file are treated as a
+// file-level prologue and are **not** shown.
 
-// Sections start with `// #` headings. Everything between two headings belongs
+// You can use that prologue for a title, a short description, or instructions
+// for opening the file.
+
+// Sections start with "// #" headings. Everything between two headings belongs
 // to the same section, and each section becomes one slide in Slide Mode.
 
 // ## Your first section: Hello, World!
@@ -72,7 +91,7 @@ IO.println("Hello from JVisualBook!");
 
 // # Text formatting with Markdown
 
-// Sections and Texts are rendered as **Markdown**, so you can use:
+// Section titles and text blocks are rendered as **Markdown**, so you can use:
 // - `*italic*` and `**bold**`
 // - `` `inline code` ``
 // - bullet lists (like this one)
@@ -129,9 +148,9 @@ IO.println(String.join("\n", results));
 // ## Error handling
 
 // If a code block contains a syntax or runtime error, the error message is
-// displayed in **red** below the block. Later blocks are still evaluated in the
-// same chapter run; they will only fail if they depend on a declaration that the
-// errored block failed to create.
+// displayed in **red** below the block. Execution continues with later blocks.
+// Those blocks will fail only if they depend on declarations that were not created
+// because of the earlier error.
 
 // Fix the error in the editor and the notebook re-runs automatically
 // from the beginning.
@@ -141,7 +160,7 @@ int broken = ;
 
 // ## Execution timeout
 
-// Every chapter execution is limited to **5 seconds** in total.
+// To keep the notebook responsive, each chapter execution is limited to **5 seconds**.
 
 // This means infinite loops or long-running computations will be stopped.
 
@@ -177,7 +196,7 @@ IO.println("You can run code on slides too!");
 
 // # Tips for writing good .jsh notebooks
 
-// **Keep sections focused.** Each section (slide) should cover one concept.
+// **Keep sections focused.** Each section (or slide) should cover one concept.
 // Aim for one short code block per section where possible.
 
 // **Order matters.** Blocks run top-to-bottom in one shared JShell session,
@@ -195,13 +214,11 @@ IO.println("You can run code on slides too!");
 
 // # Security model
 
-// JVisualBook assumes a **trusted local user**.
+// JVisualBook is designed for trusted local use.
 
-// Submitted snippets are real Java code evaluated by JShell.
-
-// Snippets may consume CPU and memory, and access files,
-// environment variables, or network resources available to
-// the Java process.
+// Code is executed by JShell with the same permissions as the Java process.
+// It can read and write files, access the network, inspect environment variables,
+// consume CPU and memory.
 
 // # Now, it's your turn!
 
