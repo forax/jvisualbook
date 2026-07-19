@@ -10,7 +10,7 @@ View it as a document or slide deck, edit snippets in the browser, and auto-run 
 ## Features
 
 - Parse `.jsh` files into chapters made of sections, text, and Java code blocks.
-- Render text as Markdown in the web UI.
+- Render text as Github Flavored Markdown in the web UI.
 - Edit Java snippets with Monaco Editor (the one used by Visual Studio Code).
 - Re-run all snippets through JShell after edits so later snippets can depend on earlier declarations.
 - Display captured standard output and standard error inline, with errors highlighted in red.
