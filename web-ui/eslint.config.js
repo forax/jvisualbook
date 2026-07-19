@@ -36,9 +36,7 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',          // not needed with React JSX transform
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'react/prop-types': 'off',                  // for now, no prop types documentation
-      'react-hooks/exhaustive-deps': 'off',       // loadDocument dependency, will fix that later
-      'react-hooks/set-state-in-effect': 'off',   // for now, off, will fix that later
+      'react/prop-types': 'off'                   // for now, no prop types documentation
     },
   },
   {
