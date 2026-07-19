@@ -137,7 +137,17 @@ function DocumentViewer({ chapterName }) {
   };
 
   useEffect(() => {
-    loadDocument();
+    fetchChapterDocument(chapterName)
+      .then(doc => {
+        setLoadedDocument(assignUUID(doc));
+      })
+      .catch(err => {
+        setError('Failed to load document');
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [chapterName]);
 
   useEffect(() => {

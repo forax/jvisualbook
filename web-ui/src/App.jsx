@@ -9,8 +9,9 @@ function App() {
   const [error, setError] = useState(null);
 
   const loadChapters = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const chaptersData = await fetchChapters();
       setChapters(chaptersData);
       if (chaptersData.length > 0) {
@@ -25,7 +26,20 @@ function App() {
   };
 
   useEffect(() => {
-    loadChapters();
+    fetchChapters()
+      .then(chaptersData => {
+        setChapters(chaptersData);
+        if (chaptersData.length > 0) {
+          setSelectedChapter(chaptersData[0]);
+        }
+      })
+      .catch(err => {
+        setError('Failed to load chapters');
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
