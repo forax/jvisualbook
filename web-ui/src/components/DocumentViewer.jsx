@@ -59,6 +59,7 @@ function DocumentViewer({ chapterName }) {
   const [error, setError] = useState(null);
   const [slideMode, setSlideMode] = useState(false);
   const codeAbortController = useRef(null);
+  const exitSlideMode = useCallback(() => setSlideMode(false), []);
 
   const loadDocument = async () => {
     setLoading(true);
@@ -171,7 +172,6 @@ function DocumentViewer({ chapterName }) {
   }
 
   if (slideMode) {
-    const exitSlideMode = useCallback(() => setSlideMode(false), []);
     return (
       <SlideViewer
         doc={docToRender}
