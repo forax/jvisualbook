@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from "remark-gfm";
 import { fetchChapterDocument, postCode } from '../services/api';
 import MonacoEditorWrapper from './MonacoEditor';
 import SlideViewer from './SlideViewer';
@@ -109,7 +110,7 @@ function DocumentViewer({ chapterName }) {
   const renderContent = content => {
     if (content.kind === "TEXT") {
       return (
-        <ReactMarkdown key={content.id} className="text-content">
+        <ReactMarkdown key={content.id} className="text-content" remarkPlugins={[remarkGfm]}>
           {content.text}
         </ReactMarkdown>
       );

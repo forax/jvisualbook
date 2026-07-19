@@ -91,7 +91,7 @@ IO.println("Hello from JVisualBook!");
 
 // # Text formatting with Markdown
 
-// Section titles and text blocks are rendered as **Markdown**, so you can use:
+// Text blocks are rendered as GitHub Flavored **Markdown**, so you can use:
 // - `*italic*` and `**bold**`
 // - `` `inline code` ``
 // - bullet lists (like this one)
