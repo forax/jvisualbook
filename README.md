@@ -26,8 +26,8 @@ A modern **browser from 2023+** to run the web UI.
 
 ## Quick start
 
-Build the jar first (see [Build](#build)),
-or use a [prebuild release](https://github.com/forax/jvisualbook/releases/latest) from Github,
+You can use a [prebuild release](https://github.com/forax/jvisualbook/releases/latest) from Github,
+or build the jar first (see [Build](#build)),
 then run it from the folder containing your `.jsh` files:
 
 ```bash
@@ -39,6 +39,9 @@ Then open:
 ```text
 http://localhost:8080
 ```
+
+JVisualBook will look for any `.jsh` file at the root of the project,
+and will open the first one it finds (alphabetically).
 
 ## Writing chapters
 
@@ -136,16 +139,14 @@ JVisualBook assumes a trusted local user:
 
 ## Build
 
-You can build your notebook by using the following Maven command: 
+You can build JVisualBook by using the following Maven command: 
 
 ```shell
 mvn clean package
 ```
 
-It builds a JAR file with the name `jvisualbook-<version>.jar` in the `target` directory, where `version` is the version of your Maven project.
+It builds a JAR file with the name `jvisualbook-<version>.jar` in the `target` directory.
 
-Then you can run `java -jar target/jvisualbook-<version>.jar` to start the web UI, and connect to it at the following default URL: `http://localhost:8080`.
+Then you can run `java -jar target/jvisualbook-*.jar` to start the web UI,
+and connect to it at the following default URL: `http://localhost:8080`.
 
-If you are running the application from an IDE, you can directly execute the `target/jvisualbook-<version>.jar` file from your IDE. 
-
-In both cases, the application will look for any `.jsh` file at the root of the project, and will open the first one it finds. By defaut it opens the `readme.jsh` file. 
