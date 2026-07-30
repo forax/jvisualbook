@@ -263,7 +263,8 @@ public final class JShellRunner {
       source = remaining;
     }
 
-    var text = output.toString(StandardCharsets.UTF_8);
+    var text = output.toString(StandardCharsets.UTF_8)
+        .replace("\r\n", "\n");
     return new Model.Evaluation(Model.Evaluation.Status.SUCCESS, text);
   }
 }
