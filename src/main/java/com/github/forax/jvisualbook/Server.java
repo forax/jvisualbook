@@ -12,7 +12,6 @@ import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 
 import java.io.IOException;
-import java.io.ObjectInputFilter;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -124,7 +123,7 @@ public final class Server {
   /// @param port          the TCP port to listen on
   /// @param dir           the directory to scan for `.jsh` chapter files
   /// @param timeoutMillis the JShell evaluation timeout in milliseconds
-  static void routing(HttpRouting.Builder routing, int port, Path dir, int timeoutMillis) {
+  static void registerRoutes(HttpRouting.Builder routing, int port, Path dir, int timeoutMillis) {
     routing
         .get("/api/chapter", (_, res) -> {
           try {
@@ -215,7 +214,7 @@ public final class Server {
                 .context("/"))
             .build()
         )
-        .routing(routing -> routing(routing, port, dir, timeoutMillis))
+        .routing(routing -> registerRoutes(routing, port, dir, timeoutMillis))
         .build()
         .start();
   }

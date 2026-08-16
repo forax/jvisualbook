@@ -39,7 +39,7 @@ public class ServerIT {
   @SetUpRoute
   public static void routing(HttpRouting.Builder routing) {
     Objects.requireNonNull(routing);
-    Server.routing(routing, FAKE_PORT, Path.of("."), 5_000);
+    Server.registerRoutes(routing, FAKE_PORT, Path.of("."), 5_000);
   }
 
   @Test
