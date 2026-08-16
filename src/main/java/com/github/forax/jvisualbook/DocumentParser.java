@@ -87,7 +87,7 @@ public final class DocumentParser {
     ;
 
     /// Strips the `// ` prefix from `TEXT` and `SECTION` lines.
-    String clean(String line) {
+    String stripSlashSlashIfText(String line) {
       return switch(this) {
         case BLANK, CODE -> line;
         case TEXT, SECTION -> line.equals("//") ? "" : line.substring("// ".length());
@@ -244,7 +244,7 @@ public final class DocumentParser {
         }
       };
 
-      handler.line(kind, kind.clean(line));
+      handler.line(kind, kind.stripSlashSlashIfText(line));
     }
 
     if (inside != LineKind.BLANK) {
