@@ -7,6 +7,7 @@ import jdk.jshell.Snippet;
 import jdk.jshell.SnippetEvent;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
@@ -96,6 +97,7 @@ public final class JShellRunner {
     try (var out = new PrintStream(output, true, StandardCharsets.UTF_8);
          var executor = Executors.newVirtualThreadPerTaskExecutor();
          var shell = JShell.builder()
+             .in(InputStream.nullInputStream())
              .out(out)
              .err(out)
              .compilerOptions("--enable-preview", "--source=" + Runtime.version().feature())
