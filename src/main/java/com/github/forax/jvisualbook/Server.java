@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /// HTTP server for JVisualBook, built on top of
@@ -166,7 +167,7 @@ public final class Server {
         })
         .get("/images/{filename}", (req, res) -> {
           var filename = req.path().pathParameters().get("filename");
-          var mediaTypeOpt = MediaTypes.detectType(filename);
+          var mediaTypeOpt = MediaTypes.detectType(filename.toLowerCase(Locale.ROOT));
           String media;
           if (mediaTypeOpt.isEmpty() || !((media = mediaTypeOpt.orElseThrow().text()).startsWith("image/"))) {
             res.status(Status.BAD_REQUEST_400)
