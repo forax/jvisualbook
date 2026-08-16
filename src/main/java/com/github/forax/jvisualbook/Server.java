@@ -117,6 +117,15 @@ public final class Server {
     return JShellRunner.evaluate(program, timeoutMillis);
   }
 
+  // Create a JSON object from a throwable to report an error
+  private static Map<String, String> jsonError(Throwable t) {
+    var message = t.getMessage();
+    return Map.of(
+        "message", message == null ? "no message" : message,
+        "kind", t.getClass().getSimpleName()
+    );
+  }
+
   /// Registers all HTTP routes on `routing`, serving chapters from `dir` with
   /// the given `timeoutMillis`.
   ///
@@ -130,8 +139,7 @@ public final class Server {
           try {
             res.send(allChapters(dir));
           } catch (IOException e) {
-            res.status(Status.NOT_FOUND_404)
-                .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+            res.status(Status.NOT_FOUND_404).send(jsonError(e));
           }
         })
         .get("/api/chapter/{filename}", (req, res) -> {
@@ -144,8 +152,7 @@ public final class Server {
           try {
             res.send(chapterDocument(target));
           } catch (IOException e) {
-            res.status(Status.NOT_FOUND_404)
-                .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+            res.status(Status.NOT_FOUND_404).send(jsonError(e));
           }
         })
         .post("/api/code", (req, res) -> {
@@ -179,8 +186,7 @@ public final class Server {
             }
           } catch (IOException e) {
             if (!res.isSent()) {
-              res.status(Status.NOT_FOUND_404)
-                  .send(Map.of("message", e.getMessage(), "kind", e.getClass().getSimpleName()));
+              res.status(Status.NOT_FOUND_404).send(jsonError(e));
               return;
             }
             throw e;
