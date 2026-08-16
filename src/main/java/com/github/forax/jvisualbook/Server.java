@@ -39,7 +39,7 @@ import java.util.Map;
 /// ## Security
 ///
 /// Path traversal is prevented on both `/api/chapter/{filename}` and
-/// `/images/{filename}` by [#validatePath], which checks that the resolved
+/// `/images/{filename}` by [#checkPathInRoot], which checks that the resolved
 /// path stays within its designated root directory.
 /// Requests that escape the root are rejected with `403 Forbidden`.
 ///
@@ -73,10 +73,11 @@ public final class Server {
     return dot == -1 ? "" : filename.substring(dot + 1);
   }
 
-  /// Resolves `filename` relative to `root` and verifies that the result stays
-  /// within `root`, guarding against path traversal attacks.
+  /// Resolves `filename` relative to `root` and verifies that the path name
+  /// stays within `root`, guarding against path traversal attacks.
+  /// This method does not verify that the corresponding file exists.
   /// @return the validated `path` or null if the `path` is outside the `root` directory
-  private static Path validatePath(Path root, String filename) {
+  private static Path checkPathInRoot(Path root, String filename) {
     var base = root.normalize().toAbsolutePath();
     var target = base.resolve(filename).normalize().toAbsolutePath();
     if (!target.startsWith(base)) {
@@ -135,7 +136,7 @@ public final class Server {
         })
         .get("/api/chapter/{filename}", (req, res) -> {
           var filename = req.path().pathParameters().get("filename");
-          var target = validatePath(dir, filename + ".jsh");
+          var target = checkPathInRoot(dir, filename + ".jsh");
           if (target == null) {
             res.status(Status.FORBIDDEN_403).send();
             return;
@@ -165,7 +166,7 @@ public final class Server {
                 .send(Map.of("extension", extractExtension(filename)));
             return;
           }
-          var target = validatePath(dir.resolve("images"), filename);
+          var target = checkPathInRoot(dir.resolve("images"), filename);
           if (target == null) {
             res.status(Status.FORBIDDEN_403).send();
             return;
