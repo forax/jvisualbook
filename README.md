@@ -31,7 +31,7 @@ or build the jar first (see [Build](#build)),
 then run it from the folder containing your `.jsh` files:
 
 ```bash
-java -jar jvisualbook-1.4.2.jar
+java -jar jvisualbook-1.4.3.jar
 ```
 
 Then open:
