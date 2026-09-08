@@ -125,6 +125,10 @@
         border-bottom: none;
     }
 
+    img {
+        width: 90%;
+    }
+
     .monaco-editor-wrapper {
         display: none !important;
     }
