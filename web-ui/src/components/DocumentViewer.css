@@ -101,15 +101,12 @@
 @media print {
     .document-viewer {
         page: document-viewer-page;
+        box-shadow: none;
     }
 
     .document-toolbar,
     .editor-resize-handle {
         display: none !important;
-    }
-
-    .document-viewer {
-        box-shadow: none;
     }
 
     .document-content {
