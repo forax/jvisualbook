@@ -1,15 +1,17 @@
 import js from '@eslint/js';
-import reactPlugin from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
 import reactHooks from 'eslint-plugin-react-hooks';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
-export default [
-  js.configs.recommended,
+export default defineConfig([
+  globalIgnores(['node_modules/', 'dist/', 'public/']),
   {
     files: ['src/**/*.{js,jsx}'],
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooks,
-    },
+    extends: [
+      js.configs.recommended,
+      eslintReact.configs.recommended,
+      reactHooks.configs.flat.recommended,
+    ],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -25,21 +27,11 @@ export default [
         requestAnimationFrame: 'readonly',
         crypto: 'readonly',
         fetch: 'readonly',
-        AbortController: 'readonly'
+        AbortController: 'readonly',
       },
     },
-    settings: {
-      react: { version: 'detect' },
-    },
     rules: {
-      ...reactPlugin.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off',          // not needed with React JSX transform
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'react/prop-types': 'off'                   // for now, no prop types documentation
     },
   },
-  {
-    ignores: ['node_modules/**', 'dist/**', 'public/**'],
-  },
-];
+]);

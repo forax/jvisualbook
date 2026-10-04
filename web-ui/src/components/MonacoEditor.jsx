@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Editor, { loader } from '@monaco-editor/react';
 import './MonacoEditor.css';
 
