@@ -11,6 +11,10 @@ function SlideViewer({ doc, onExit, renderContent }) {
 
   useEffect(() => {
     const onKey = e => {
+      const t = e.target;
+      if (t != null && t.tagName === 'TEXTAREA') {
+        return;  // let the editor handle the key
+      }
       switch (e.code) {
         case 'ArrowLeft': prev(); break;
         case 'ArrowRight': next(); break;
