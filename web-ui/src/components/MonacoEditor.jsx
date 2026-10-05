@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Editor, { loader } from '@monaco-editor/react';
 import './MonacoEditor.css';
 
@@ -27,6 +27,13 @@ function MonacoEditorWrapper({ code, onChange }) {
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
+  const dragCleanupRef = useRef(null);
+
+  useEffect(() => () => {
+    if (dragCleanupRef.current != null) {
+      dragCleanupRef.current();
+    }
+  }, []);
 
   const handleEditorDidMount = () => {
     if (manualHeight !== null) return;
@@ -40,6 +47,9 @@ function MonacoEditorWrapper({ code, onChange }) {
 
   const onMouseDown = useCallback((e) => {
     e.preventDefault();
+    if (dragCleanupRef.current != null) {
+      dragCleanupRef.current();
+    }
     isDragging.current = true;
     startY.current = e.clientY;
     const el = wrapperRef.current;
@@ -60,12 +70,13 @@ function MonacoEditorWrapper({ code, onChange }) {
 
     const onMouseUp = () => {
       isDragging.current = false;
-      cleanup()
+      dragCleanupRef.current = null;
+      cleanup();
     };
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-    return () => cleanup();
+    dragCleanupRef.current = cleanup;
   }, []);
 
   return (
