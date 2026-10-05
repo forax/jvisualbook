@@ -42,26 +42,26 @@ function PrintSlides({ doc, onReady }) {
 
   return (
     <>
-      {doc.sections.map((section, i) => (
-        <div key={i} className="print-slide">
+      {doc.sections.map(section => (
+        <div key={section.id} className="print-slide">
           {section.title && (
             <ReactMarkdown className="print-slide-title">
               {section.title}
             </ReactMarkdown>
           )}
           <div className="print-slide-body">
-            {section.contents.map((content, j) => {
+            {section.contents.map(content => {
               if (content.kind === 'TEXT') {
                 return (
-                  <ReactMarkdown key={j}>{content.text}</ReactMarkdown>
+                  <ReactMarkdown key={content.id}>{content.text}</ReactMarkdown>
                 );
               }
               if (content.kind === 'CODE') {
-                return <pre key={j}>{content.text}</pre>;
+                return <pre key={content.id}>{content.text}</pre>;
               }
               if (content.kind === 'OUTPUT' && content.text) {
                 const cls = content.status === 'ERROR' ? 'print-output error' : 'print-output';
-                return <pre key={j} className={cls}>{content.text}</pre>;
+                return <pre key={content.id} className={cls}>{content.text}</pre>;
               }
               return null;
             })}

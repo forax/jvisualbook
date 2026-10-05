@@ -11,6 +11,7 @@ function assignUUID(doc) {
   return {
     sections: doc.sections.map(section => ({
       ...section,
+      id: crypto.randomUUID(),
       contents: section.contents.map(content => ({
         ...content,
         id: crypto.randomUUID()
@@ -209,8 +210,8 @@ function DocumentViewer({ chapterName }) {
       </div>
 
       <div className="document-content">
-        {docToRender.sections.map((section, sectionIndex) => (
-          <div key={sectionIndex} className="section">
+        {docToRender.sections.map(section => (
+          <div key={section.id} className="section">
             <ReactMarkdown className="section-title">
               {section.title}
             </ReactMarkdown>
