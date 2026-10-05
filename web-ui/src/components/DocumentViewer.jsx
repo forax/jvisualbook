@@ -58,7 +58,7 @@ function DocumentViewer({ chapterName }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [slideMode, setSlideMode] = useState(false);
-  const codeAbortController = useRef(null);
+  const codeAbortControllerRef = useRef(null);
   const exitSlideMode = useCallback(() => setSlideMode(false), []);
 
   const loadDocument = async () => {
@@ -77,9 +77,9 @@ function DocumentViewer({ chapterName }) {
   };
 
   const runCode = async (doc) => {
-    codeAbortController.current?.abort();
+    codeAbortControllerRef.current?.abort();
     const controller = new AbortController();
-    codeAbortController.current = controller;
+    codeAbortControllerRef.current = controller;
 
     const codeBlocks = getCodeBlocks(doc);
     const program = {
@@ -96,7 +96,7 @@ function DocumentViewer({ chapterName }) {
   };
 
   const handleCodeChange = (contentId, newValue) => {
-    codeAbortController.current?.abort();
+    codeAbortControllerRef.current?.abort();
     setLoadedDocument(doc => ({
       sections: doc.sections.map(section => ({
         ...section,

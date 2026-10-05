@@ -24,9 +24,9 @@ function MonacoEditorWrapper({ code, onChange }) {
   const [editorHeight, setEditorHeight] = useState('auto');
   const [manualHeight, setManualHeight] = useState(null);
   const wrapperRef = useRef(null);
-  const isDragging = useRef(false);
-  const startY = useRef(0);
-  const startHeight = useRef(0);
+  const isDraggingRef = useRef(false);
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
   const dragCleanupRef = useRef(null);
 
   useEffect(() => () => {
@@ -50,15 +50,15 @@ function MonacoEditorWrapper({ code, onChange }) {
     if (dragCleanupRef.current != null) {
       dragCleanupRef.current();
     }
-    isDragging.current = true;
-    startY.current = e.clientY;
+    isDraggingRef.current = true;
+    startYRef.current = e.clientY;
     const el = wrapperRef.current;
-    startHeight.current = el ? el.getBoundingClientRect().height : 40;
+    startHeightRef.current = el ? el.getBoundingClientRect().height : 40;
 
     const onMouseMove = (e) => {
-      if (!isDragging.current) return;
-      const delta = e.clientY - startY.current;
-      const next = Math.max(40, startHeight.current + delta);
+      if (!isDraggingRef.current) return;
+      const delta = e.clientY - startYRef.current;
+      const next = Math.max(40, startHeightRef.current + delta);
       setManualHeight(next);
       setEditorHeight(`${next}px`);
     };
@@ -69,7 +69,7 @@ function MonacoEditorWrapper({ code, onChange }) {
     };
 
     const onMouseUp = () => {
-      isDragging.current = false;
+      isDraggingRef.current = false;
       dragCleanupRef.current = null;
       cleanup();
     };

@@ -31,11 +31,11 @@ export function printSlidesAsPDF(doc) {
 }
 
 function PrintSlides({ doc, onReady }) {
-  const triggered = useRef(false);
+  const triggeredRef = useRef(false);
 
   useEffect(() => {
-    if (triggered.current) return;
-    triggered.current = true;
+    if (triggeredRef.current) return;
+    triggeredRef.current = true;
     // Give React one frame to finish rendering before printing
     requestAnimationFrame(() => requestAnimationFrame(onReady));
   }, [onReady]);
